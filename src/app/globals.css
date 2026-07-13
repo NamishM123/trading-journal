@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --surface-2: #efeeea;
+  --border: #e3e1db;
+  --border-strong: #cfccc4;
+  --text: #1c1c1a;
+  --muted: #6e6c65;
+  --faint: #9b998f;
+  --accent: #1f7a53;
+  --accent-hover: #196343;
+  --accent-soft: #e3f1ea;
+  --accent-fg: #ffffff;
+  --up: #178a4c;
+  --up-soft: #e2f3e9;
+  --down: #cc3b2e;
+  --down-soft: #fbe9e6;
+  --warn: #b98216;
+  --warn-soft: #f9efdb;
+  --ring: rgba(31, 122, 83, 0.35);
+  /* chart marks — CVD-validated pair for this surface */
+  --chart-up: #178a4c;
+  --chart-down: #cc3b2e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121311;
+    --surface: #1b1d1a;
+    --surface-2: #232622;
+    --border: #2c2f2b;
+    --border-strong: #3c403b;
+    --text: #ecebe6;
+    --muted: #a3a198;
+    --faint: #75736a;
+    --accent: #3fae7c;
+    --accent-hover: #4fc18d;
+    --accent-soft: #1d2f26;
+    --accent-fg: #0d130f;
+    --up: #4ade80;
+    --up-soft: #17251b;
+    --down: #f87171;
+    --down-soft: #2b1a17;
+    --warn: #e0b25c;
+    --warn-soft: #2b2416;
+    --ring: rgba(63, 174, 124, 0.45);
+    /* chart marks — CVD-validated pair for this surface */
+    --chart-up: #26a466;
+    --chart-down: #e05c4d;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-ink: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-fg: var(--accent-fg);
+  --color-up: var(--up);
+  --color-up-soft: var(--up-soft);
+  --color-down: var(--down);
+  --color-down-soft: var(--down-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-chart-up: var(--chart-up);
+  --color-chart-down: var(--chart-down);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23888580' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+
+::placeholder {
+  color: var(--faint);
+}
+
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ring);
+}
