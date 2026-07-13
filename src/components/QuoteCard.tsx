@@ -4,9 +4,9 @@ import { quoteOfTheDay } from "@/lib/constants";
 export function QuoteCard() {
   const quote = quoteOfTheDay();
   return (
-    <div className="rounded-2xl border border-line bg-accent-soft/60 px-5 py-4">
+    <div className="rounded-2xl border border-line border-l-2 border-l-accent bg-surface px-5 py-4 shadow-[-6px_0_22px_-8px_rgba(69,196,255,0.25),0_14px_34px_rgba(0,0,0,0.3)] backdrop-blur-xl">
       <p className="text-sm leading-relaxed text-ink">“{quote}”</p>
-      <p className="mt-1.5 text-xs text-muted">
+      <p className="mt-1.5 font-mono text-[0.64rem] uppercase tracking-[0.12em] text-faint">
         Mark Douglas — Trading in the Zone
       </p>
     </div>

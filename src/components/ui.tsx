@@ -20,7 +20,8 @@ export function Card({
   return (
     <div
       className={cx(
-        "rounded-2xl border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]",
+        "rounded-2xl border border-line bg-surface p-5 backdrop-blur-xl",
+        "shadow-[0_14px_34px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.05)]",
         className
       )}
     >
@@ -38,8 +39,11 @@ export function SectionTitle({
 }) {
   return (
     <div className="mb-4">
-      <h2 className="text-sm font-semibold tracking-wide text-ink">{children}</h2>
-      {hint ? <p className="mt-0.5 text-sm text-muted">{hint}</p> : null}
+      <h2 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-[0.14em] text-ink">
+        <span className="h-[0.45rem] w-[0.45rem] flex-shrink-0 rounded-[2px] bg-accent shadow-[0_0_8px_rgba(69,196,255,0.8)]" />
+        {children}
+      </h2>
+      {hint ? <p className="mt-1 text-sm text-muted">{hint}</p> : null}
     </div>
   );
 }
@@ -51,16 +55,17 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 export function Button({ variant = "primary", className, ...props }: ButtonProps) {
   const styles = {
     primary:
-      "bg-accent text-accent-fg hover:bg-accent-hover border border-transparent",
+      "bg-accent text-accent-fg hover:bg-accent-hover border border-transparent shadow-[var(--glow)]",
     secondary:
-      "bg-surface text-ink border border-line-strong hover:bg-surface-2",
+      "bg-surface-2 text-ink border border-line-strong hover:bg-[rgba(148,190,255,0.1)] backdrop-blur",
     ghost: "bg-transparent text-muted hover:text-ink hover:bg-surface-2 border border-transparent",
-    danger: "bg-transparent text-down border border-line hover:bg-down-soft",
+    danger:
+      "bg-down-soft text-down border border-[rgba(255,93,104,0.3)] hover:bg-[rgba(255,93,104,0.2)]",
   }[variant];
   return (
     <button
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50",
         styles,
         className
       )}
@@ -74,7 +79,7 @@ export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       className={cx(
-        "w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink",
+        "w-full rounded-xl border border-line bg-[rgba(6,11,19,0.65)] px-3 py-2 text-sm text-ink transition-colors hover:border-line-strong",
         className
       )}
       {...rest}
@@ -87,7 +92,7 @@ export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       className={cx(
-        "w-full rounded-xl border border-line bg-surface px-3 py-2 pr-9 text-sm text-ink",
+        "w-full rounded-xl border border-line bg-[rgba(6,11,19,0.65)] px-3 py-2 pr-9 text-sm text-ink transition-colors hover:border-line-strong",
         className
       )}
       {...rest}
@@ -100,7 +105,7 @@ export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       className={cx(
-        "w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm leading-relaxed text-ink",
+        "w-full rounded-xl border border-line bg-[rgba(6,11,19,0.65)] px-3 py-2 text-sm leading-relaxed text-ink transition-colors hover:border-line-strong",
         className
       )}
       rows={props.rows ?? 3}
@@ -120,7 +125,9 @@ export function Field({
 }) {
   return (
     <label className={cx("block", className)}>
-      <span className="mb-1.5 block text-xs font-medium text-muted">{label}</span>
+      <span className="mb-1.5 block font-mono text-[0.64rem] font-medium uppercase tracking-[0.1em] text-muted">
+        {label}
+      </span>
       {children}
     </label>
   );
@@ -136,16 +143,16 @@ export function Badge({
   className?: string;
 }) {
   const styles = {
-    neutral: "bg-surface-2 text-muted",
-    accent: "bg-accent-soft text-accent",
-    up: "bg-up-soft text-up",
-    down: "bg-down-soft text-down",
-    warn: "bg-warn-soft text-warn",
+    neutral: "bg-surface-2 text-muted border-line",
+    accent: "bg-accent-soft text-accent border-[rgba(69,196,255,0.3)]",
+    up: "bg-up-soft text-up border-[rgba(47,227,142,0.3)]",
+    down: "bg-down-soft text-down border-[rgba(255,93,104,0.3)]",
+    warn: "bg-warn-soft text-warn border-[rgba(255,180,84,0.3)]",
   }[tone];
   return (
     <span
       className={cx(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-mono text-[0.64rem] font-semibold",
         styles,
         className
       )}

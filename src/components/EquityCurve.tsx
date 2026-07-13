@@ -36,6 +36,10 @@ export function EquityCurve({ points }: { points: Point[] }) {
 
   const last = points[points.length - 1];
   const lineColor = last.y >= 0 ? "var(--chart-up)" : "var(--chart-down)";
+  const glow =
+    last.y >= 0
+      ? "drop-shadow(0 0 6px rgba(47,227,142,0.55))"
+      : "drop-shadow(0 0 6px rgba(255,93,104,0.55))";
 
   // 3 recessive horizontal gridlines + zero line when in range
   const gridYs = [yMin, yMin + ySpan / 2, yMax];
@@ -103,8 +107,15 @@ export function EquityCurve({ points }: { points: Point[] }) {
         />
       ) : null}
 
-      <path d={area} fill={lineColor} opacity="0.08" />
-      <path d={path} fill="none" stroke={lineColor} strokeWidth="2" strokeLinejoin="round" />
+      <path d={area} fill={lineColor} opacity="0.12" />
+      <path
+        d={path}
+        fill="none"
+        stroke={lineColor}
+        strokeWidth="2"
+        strokeLinejoin="round"
+        style={{ filter: glow }}
+      />
 
       <text
         x={W - PAD.right}

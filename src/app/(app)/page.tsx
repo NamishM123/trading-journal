@@ -45,9 +45,11 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {tiles.map((t) => (
           <Card key={t.label} className="!p-4">
-            <p className="text-xs text-muted">{t.label}</p>
+            <p className="font-mono text-[0.62rem] uppercase tracking-[0.12em] text-faint">
+              {t.label}
+            </p>
             <p
-              className={`mt-1 text-xl font-semibold tabular-nums ${
+              className={`mt-1 font-mono text-xl font-bold tabular-nums ${
                 t.tone === "up" ? "text-up" : t.tone === "down" ? "text-down" : ""
               }`}
             >

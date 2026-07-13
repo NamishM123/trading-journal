@@ -1,61 +1,42 @@
 @import "tailwindcss";
 
-:root {
-  --bg: #f6f5f2;
-  --surface: #ffffff;
-  --surface-2: #efeeea;
-  --border: #e3e1db;
-  --border-strong: #cfccc4;
-  --text: #1c1c1a;
-  --muted: #6e6c65;
-  --faint: #9b998f;
-  --accent: #1f7a53;
-  --accent-hover: #196343;
-  --accent-soft: #e3f1ea;
-  --accent-fg: #ffffff;
-  --up: #178a4c;
-  --up-soft: #e2f3e9;
-  --down: #cc3b2e;
-  --down-soft: #fbe9e6;
-  --warn: #b98216;
-  --warn-soft: #f9efdb;
-  --ring: rgba(31, 122, 83, 0.35);
-  /* chart marks — CVD-validated pair for this surface */
-  --chart-up: #178a4c;
-  --chart-down: #cc3b2e;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #121311;
-    --surface: #1b1d1a;
-    --surface-2: #232622;
-    --border: #2c2f2b;
-    --border-strong: #3c403b;
-    --text: #ecebe6;
-    --muted: #a3a198;
-    --faint: #75736a;
-    --accent: #3fae7c;
-    --accent-hover: #4fc18d;
-    --accent-soft: #1d2f26;
-    --accent-fg: #0d130f;
-    --up: #4ade80;
-    --up-soft: #17251b;
-    --down: #f87171;
-    --down-soft: #2b1a17;
-    --warn: #e0b25c;
-    --warn-soft: #2b2416;
-    --ring: rgba(63, 174, 124, 0.45);
-    /* chart marks — CVD-validated pair for this surface */
-    --chart-up: #26a466;
-    --chart-down: #e05c4d;
-  }
+/* ── Night Desk: a trading-terminal HUD. Dark by design. ──
+   One palette, applied regardless of the OS light/dark preference — a trading
+   terminal doesn't have a light mode. Tokens feed Tailwind via @theme inline. */
+:root,
+:root.light,
+:root.dark {
+  --bg: #070b12;
+  --surface: rgba(15, 22, 34, 0.72);
+  --surface-solid: #0f1622;
+  --surface-2: rgba(148, 190, 255, 0.06);
+  --border: rgba(148, 190, 255, 0.11);
+  --border-strong: rgba(148, 190, 255, 0.25);
+  --text: #e8eefa;
+  --muted: #94a2ba;
+  --faint: #5d6b82;
+  --accent: #45c4ff;
+  --accent-hover: #7ad4ff;
+  --accent-soft: rgba(69, 196, 255, 0.12);
+  --accent-fg: #04131d;
+  --up: #2fe38e;
+  --up-soft: rgba(47, 227, 142, 0.12);
+  --down: #ff5d68;
+  --down-soft: rgba(255, 93, 104, 0.13);
+  --warn: #ffb454;
+  --warn-soft: rgba(255, 180, 84, 0.11);
+  --ring: rgba(69, 196, 255, 0.5);
+  --glow: 0 0 18px rgba(69, 196, 255, 0.3);
+  /* chart marks — glow-friendly up/down pair on the deep surface */
+  --chart-up: #2fe38e;
+  --chart-down: #ff5d68;
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-solid: var(--surface-solid);
   --color-line: var(--border);
   --color-line-strong: var(--border-strong);
   --color-ink: var(--text);
@@ -74,18 +55,33 @@
   --color-chart-up: var(--chart-up);
   --color-chart-down: var(--chart-down);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 html {
-  color-scheme: light dark;
+  color-scheme: dark;
 }
 
 body {
-  background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(65rem 32rem at 72% -12%, rgba(69, 196, 255, 0.055), transparent 60%),
+    radial-gradient(48rem 30rem at 4% -4%, rgba(102, 96, 255, 0.04), transparent 55%),
+    var(--bg);
+}
+
+/* Starfield canvas sits behind everything; app content rides above it. */
+.starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+body > *:not(.starfield) {
+  position: relative;
+  z-index: 1;
 }
 
 input,
@@ -98,7 +94,7 @@ button {
 
 select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23888580' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a2ba' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
 }
@@ -106,8 +102,26 @@ select {
 ::placeholder {
   color: var(--faint);
 }
+::selection {
+  background: var(--accent-soft);
+}
 
 *:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--ring);
+}
+
+/* PnL and other numerics glow softly like a fill readout. */
+.text-up {
+  text-shadow: 0 0 12px rgba(47, 227, 142, 0.35);
+}
+.text-down {
+  text-shadow: 0 0 12px rgba(255, 93, 104, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
 }
