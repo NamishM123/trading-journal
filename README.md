@@ -39,16 +39,19 @@ stored locally: an embedded Postgres (PGlite) in `.data/pglite` and screenshots 
 
 1. Push this repo to GitHub and import it in [Vercel](https://vercel.com/new).
 2. In the Vercel project: **Storage → Create Database → Neon (Postgres)**. This sets
-   `DATABASE_URL` automatically.
+   `DATABASE_URL` automatically. **(Required — without it the app crashes on login,
+   because Vercel's filesystem is read-only and the local embedded database can't run
+   there.)**
 3. **Storage → Create Blob store**. This sets `BLOB_READ_WRITE_TOKEN` automatically.
 4. Add two more environment variables under **Settings → Environment Variables**:
    - `APP_PASSWORD` — the password you'll log in with
-   - `SESSION_SECRET` — a long random string (`openssl rand -base64 32`)
-5. Create the tables once (from your machine, with the Neon URL):
-   ```bash
-   DATABASE_URL="postgres://…" npx drizzle-kit migrate
-   ```
-6. Deploy. The playbook seeds itself with the default setups on first load.
+   - `SESSION_SECRET` — a long random string, **32+ characters**
+     (e.g. `openssl rand -base64 32`, or any password-manager-generated string)
+5. Deploy. **The database tables are created automatically on every deploy** — the
+   `vercel-build` script runs the migrations before building, so there's no manual
+   step. The playbook then seeds its default setups on first load.
+
+If a deploy fails with "DATABASE_URL is not set", finish step 2 and redeploy.
 
 Note: screenshots on Vercel Blob are served from public but unguessable URLs; the app
 itself is password-gated.
