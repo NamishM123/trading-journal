@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { fmtMoney } from "@/lib/format";
+import { fmtDateShort, fmtMoney } from "@/lib/format";
 
-type Point = { x: number; y: number };
+type Point = { x: number; y: number; date?: string };
 
 const H = 300;
 const PAD = { top: 16, right: 16, bottom: 28, left: 62 };
@@ -90,8 +90,12 @@ export function EquityCurve({ points }: { points: Point[] }) {
         height={H}
         role="img"
         aria-label={`Equity curve, ${points.length} trades, ending at ${fmtMoney(last.y)}`}
+        style={{ touchAction: "pan-y" }}
         onPointerMove={onMove}
-        onPointerLeave={() => setHover(null)}
+        onPointerDown={onMove}
+        onPointerLeave={(e) => {
+          if (e.pointerType === "mouse") setHover(null);
+        }}
       >
         <defs>
           <linearGradient id="eqfill" x1="0" y1="0" x2="0" y2="1">
@@ -186,19 +190,21 @@ export function EquityCurve({ points }: { points: Point[] }) {
               strokeWidth="2"
             />
             <g
-              transform={`translate(${Math.min(px(h.x) + 12, W - 156)}, ${Math.max(py(h.y) - 46, 6)})`}
+              transform={`translate(${Math.min(px(h.x) + 12, W - 172)}, ${Math.max(py(h.y) - 52, 6)})`}
             >
               <rect
-                width="144"
-                height="40"
+                width="160"
+                height="46"
                 rx="10"
                 fill="var(--surface-solid)"
                 stroke="var(--border-strong)"
               />
-              <text x="12" y="17" fontSize="12" fill="var(--muted)">
-                {h.x === 0 ? "start" : `after trade ${h.x}`}
+              <text x="12" y="19" fontSize="12" fill="var(--muted)">
+                {h.x === 0
+                  ? "start"
+                  : `${h.date ? fmtDateShort(h.date) : ""} · trade ${h.x}`}
               </text>
-              <text x="12" y="33" fontSize="14" fontWeight="700" fill="var(--text)">
+              <text x="12" y="37" fontSize="14" fontWeight="700" fill="var(--text)">
                 {fmtMoney(h.y)}
               </text>
             </g>

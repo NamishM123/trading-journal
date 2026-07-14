@@ -80,17 +80,17 @@ export function statsForTrades(trades: TradeWithRelations[]): SetupStats {
   };
 }
 
-/** Cumulative PnL series in chronological order. */
+/** Cumulative PnL series in chronological order, tagged with each trade's date. */
 export function equitySeries(
   trades: { pnl: number; tradeDate: string; id: number }[]
-): { x: number; y: number }[] {
+): { x: number; y: number; date: string }[] {
   const sorted = [...trades].sort(
     (a, b) => a.tradeDate.localeCompare(b.tradeDate) || a.id - b.id
   );
   let cum = 0;
   return sorted.map((t, i) => {
     cum += t.pnl;
-    return { x: i + 1, y: cum };
+    return { x: i + 1, y: cum, date: t.tradeDate };
   });
 }
 
