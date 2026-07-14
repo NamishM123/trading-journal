@@ -46,9 +46,6 @@ export default async function StatsPage() {
   if (all.length === 0) {
     return (
       <div className="mx-auto max-w-3xl">
-        <Card className="mb-5">
-          <h1 className="text-2xl font-semibold tracking-tight">Stats</h1>
-        </Card>
         <EmptyState title="No data yet." />
       </div>
     );
@@ -115,10 +112,6 @@ export default async function StatsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <Card>
-        <h1 className="text-2xl font-semibold tracking-tight">Stats</h1>
-      </Card>
-
-      <Card>
         <SectionTitle>
           Performance
         </SectionTitle>
@@ -152,7 +145,7 @@ export default async function StatsPage() {
           </SectionTitle>
           <div className="space-y-2">
             {byWeekday.map(({ day, trades: dts }) => (
-              <div key={day} className="flex items-center gap-3 text-sm">
+              <div key={day} className="flex items-center gap-3 text-base">
                 <span className="w-28">{day}</span>
                 <span className="w-16 text-muted">{dts.length} trade{dts.length === 1 ? "" : "s"}</span>
                 <span className="w-14 text-right tabular-nums text-muted">
@@ -172,7 +165,7 @@ export default async function StatsPage() {
           </SectionTitle>
           <div className="space-y-2">
             {bySession.map(({ bucket, trades: bts }) => (
-              <div key={bucket} className="flex items-center gap-3 text-sm">
+              <div key={bucket} className="flex items-center gap-3 text-base">
                 <span className="w-28">{bucket}</span>
                 <span className="w-16 text-muted">{bts.length} trade{bts.length === 1 ? "" : "s"}</span>
                 <span className="w-14 text-right tabular-nums text-muted">
@@ -190,9 +183,9 @@ export default async function StatsPage() {
           Edge By Setup
         </SectionTitle>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[540px] text-sm">
+          <table className="w-full min-w-[560px] text-base">
             <thead>
-              <tr className="border-b border-line text-left text-xs text-muted">
+              <tr className="border-b border-line text-left text-sm text-muted">
                 <th className="py-2 pr-3 font-medium">Setup</th>
                 <th className="py-2 pr-3 text-right font-medium">Trades</th>
                 <th className="py-2 pr-3 text-right font-medium">Win Rate</th>
@@ -277,7 +270,7 @@ export default async function StatsPage() {
         </SectionTitle>
         <div className="space-y-2">
           {byGrade.map(({ grade, trades: gts }) => (
-            <div key={grade} className="flex items-center gap-3 text-sm">
+            <div key={grade} className="flex items-center gap-3 text-base">
               <span className="w-8 font-semibold">{grade}</span>
               <span className="w-16 text-muted">{gts.length} trade{gts.length === 1 ? "" : "s"}</span>
               <div className="h-4 flex-1 overflow-hidden rounded-full bg-surface-2">
@@ -303,7 +296,7 @@ export default async function StatsPage() {
           </SectionTitle>
           <div className="space-y-2">
             {byEmotion.map(({ emotion, trades: ets }) => (
-              <div key={emotion} className="flex items-center gap-3 text-sm">
+              <div key={emotion} className="flex items-center gap-3 text-base">
                 <span className="w-28">{emotion}</span>
                 <span className="w-16 text-muted">{ets.length} trade{ets.length === 1 ? "" : "s"}</span>
                 <span className="w-14 text-right tabular-nums text-muted">
@@ -323,7 +316,7 @@ export default async function StatsPage() {
           </SectionTitle>
           <div className="space-y-2">
             {byEdgeType.map(({ label, value, trades: ets }) => (
-              <div key={value} className="flex items-center gap-3 text-sm">
+              <div key={value} className="flex items-center gap-3 text-base">
                 <span className="w-28 font-medium">{label}</span>
                 <span className="w-16 text-muted">{ets.length} trade{ets.length === 1 ? "" : "s"}</span>
                 <span className="w-14 text-right tabular-nums text-muted">
@@ -343,7 +336,7 @@ export default async function StatsPage() {
           </SectionTitle>
           <div className="space-y-2">
             {byRiskAcceptance.map(({ answer, trades: rts }) => (
-              <div key={answer} className="flex items-center gap-3 text-sm">
+              <div key={answer} className="flex items-center gap-3 text-base">
                 <span className="w-40 truncate" title={answer}>{answer}</span>
                 <span className="w-16 text-muted">{rts.length} trade{rts.length === 1 ? "" : "s"}</span>
                 <span className="w-14 text-right tabular-nums text-muted">
@@ -363,7 +356,7 @@ export default async function StatsPage() {
           </SectionTitle>
           <div className="space-y-2">
             {byTiming.map(({ timing, trades: tts }) => (
-              <div key={timing} className="flex items-center gap-3 text-sm">
+              <div key={timing} className="flex items-center gap-3 text-base">
                 <span className="w-40 truncate" title={timing}>{timing}</span>
                 <span className="w-16 text-muted">{tts.length} trade{tts.length === 1 ? "" : "s"}</span>
                 <span className="w-14 text-right tabular-nums text-muted">
@@ -383,7 +376,7 @@ export default async function StatsPage() {
           </SectionTitle>
           <div className="space-y-2">
             {byMistake.map(({ mistake, trades: mts }) => (
-              <div key={mistake} className="flex items-center gap-3 text-sm">
+              <div key={mistake} className="flex items-center gap-3 text-base">
                 <span className="w-40 truncate" title={mistake}>{mistake}</span>
                 <span className="w-16 text-muted">{mts.length} trade{mts.length === 1 ? "" : "s"}</span>
                 <span className="w-14 text-right tabular-nums text-muted">
@@ -406,9 +399,9 @@ export default async function StatsPage() {
               <Link
                 key={t.id}
                 href={`/trades/${t.id}`}
-                className="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-line px-3.5 py-2.5 text-sm hover:bg-surface-2"
+                className="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-line px-3.5 py-2.5 text-base hover:bg-surface-2"
               >
-                <span className="w-14 text-sm text-muted">{fmtDateShort(t.tradeDate)}</span>
+                <span className="w-16 text-sm text-muted">{fmtDateShort(t.tradeDate)}</span>
                 <span className="w-12 font-medium">{t.instrument}</span>
                 <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
                   {t.noLabel ? <Badge tone="warn">No Label</Badge> : null}
@@ -435,9 +428,9 @@ function PerfStat({
 }) {
   return (
     <div>
-      <dt className="text-sm text-muted">{label}</dt>
+      <dt className="text-base text-muted">{label}</dt>
       <dd
-        className={`mt-1 font-mono text-xl font-bold tabular-nums ${
+        className={`mt-1 font-mono text-2xl font-bold tabular-nums ${
           tone === "up" ? "text-up" : tone === "down" ? "text-down" : "text-ink"
         }`}
       >

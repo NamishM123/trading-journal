@@ -6,10 +6,15 @@ import { getDb } from "@/db";
 import { journalEntries } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 
-export async function saveJournalEntry(formData: FormData) {
+export type JournalResult = { error?: string; saved?: boolean } | null;
+
+export async function saveJournalEntry(
+  _prev: JournalResult,
+  formData: FormData
+): Promise<JournalResult> {
   const userId = await requireUserId();
   const entryDate = String(formData.get("entryDate") ?? "").trim();
-  if (!entryDate) return;
+  if (!entryDate) return { error: "Pick a date first." };
 
   const values = {
     userId,
@@ -21,18 +26,23 @@ export async function saveJournalEntry(formData: FormData) {
     dayGrade: String(formData.get("dayGrade") ?? "").trim() || null,
   };
 
-  const db = await getDb();
-  const [existing] = await db
-    .select({ id: journalEntries.id })
-    .from(journalEntries)
-    .where(and(eq(journalEntries.entryDate, entryDate), eq(journalEntries.userId, userId)));
+  try {
+    const db = await getDb();
+    const [existing] = await db
+      .select({ id: journalEntries.id })
+      .from(journalEntries)
+      .where(and(eq(journalEntries.entryDate, entryDate), eq(journalEntries.userId, userId)));
 
-  if (existing) {
-    await db.update(journalEntries).set(values).where(eq(journalEntries.id, existing.id));
-  } else {
-    await db.insert(journalEntries).values(values);
+    if (existing) {
+      await db.update(journalEntries).set(values).where(eq(journalEntries.id, existing.id));
+    } else {
+      await db.insert(journalEntries).values(values);
+    }
+  } catch (e) {
+    return { error: `Could not save. ${e instanceof Error ? e.message : "Unknown error."}` };
   }
   revalidatePath("/journal");
+  return { saved: true };
 }
 
 export async function deleteJournalEntry(formData: FormData) {

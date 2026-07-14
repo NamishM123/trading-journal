@@ -34,7 +34,7 @@ export function Card({
 
 export function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h2 className="mb-4 text-xl font-semibold tracking-tight text-ink">{children}</h2>
+    <h2 className="mb-4 text-2xl font-semibold tracking-tight text-ink">{children}</h2>
   );
 }
 
@@ -116,7 +116,7 @@ export function Field({
 }) {
   return (
     <label className={cx("block", className)}>
-      <span className="mb-1.5 block text-sm font-medium text-muted">
+      <span className="mb-1.5 block text-base font-medium text-muted">
         {label}
       </span>
       {children}
@@ -144,7 +144,7 @@ export function Badge({
     <span
       className={cx(
         // max-w-full + inner truncate keeps long setup names on one line.
-        "inline-flex max-w-full items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold",
+        "inline-flex max-w-full items-center gap-1 rounded-full border px-3 py-1 text-sm font-semibold",
         styles,
         className
       )}
@@ -157,8 +157,8 @@ export function Badge({
 export function EmptyState({ title, hint }: { title: string; hint?: string }) {
   return (
     <Card className="px-6 py-12 text-center">
-      <p className="text-base font-medium text-ink">{title}</p>
-      {hint ? <p className="mt-1 text-sm text-muted">{hint}</p> : null}
+      <p className="text-lg font-medium text-ink">{title}</p>
+      {hint ? <p className="mt-1 text-base text-muted">{hint}</p> : null}
     </Card>
   );
 }

@@ -5,10 +5,9 @@ import { trades } from "@/db/schema";
 import { Button, Card, SectionTitle } from "@/components/ui";
 import { loadSampleData, clearSampleData } from "@/actions/sample";
 import { QuoteCard } from "@/components/QuoteCard";
-import { TradeRow } from "@/components/TradeRow";
 import { EquityCurve } from "@/components/EquityCurve";
 import { MonthCalendar } from "@/components/MonthCalendar";
-import { fmtMoney, fmtPct, fmtR } from "@/lib/format";
+import { fmtMoney, fmtPct, fmtR, todayISO } from "@/lib/format";
 import { requireUserId } from "@/lib/session";
 import {
   avgGrade,
@@ -24,12 +23,20 @@ import {
 
 export const dynamic = "force-dynamic";
 
+const RANGES = [
+  { key: "today", label: "Today" },
+  { key: "week", label: "This Week" },
+  { key: "month", label: "This Month" },
+  { key: "all", label: "All Time" },
+] as const;
+
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ cal?: string }>;
+  searchParams: Promise<{ cal?: string; range?: string }>;
 }) {
-  const { cal } = await searchParams;
+  const { cal, range: rawRange } = await searchParams;
+  const range = RANGES.some((r) => r.key === rawRange) ? rawRange! : "all";
   const thisMonth = new Date().toISOString().slice(0, 7);
   const month = cal && /^\d{4}-(0[1-9]|1[0-2])$/.test(cal) ? cal : thisMonth;
 
@@ -41,24 +48,55 @@ export default async function DashboardPage({
     orderBy: [desc(trades.tradeDate), desc(trades.id)],
   });
 
-  const pnl = totalPnl(all);
+  const today = todayISO();
+  const monthPrefix = today.slice(0, 7);
+  const monday = new Date(today + "T12:00:00");
+  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+  const weekStart = monday.toISOString().slice(0, 10);
+
+  const shown = all.filter((t) => {
+    if (range === "today") return t.tradeDate === today;
+    if (range === "week") return t.tradeDate >= weekStart;
+    if (range === "month") return t.tradeDate.startsWith(monthPrefix);
+    return true;
+  });
+
+  const pnl = totalPnl(shown);
   const tiles = [
     { label: "Net PnL", value: fmtMoney(pnl), tone: pnl > 0 ? "up" : pnl < 0 ? "down" : "" },
-    { label: "Win Rate", value: fmtPct(winRate(all)) },
-    { label: "Avg R", value: fmtR(avgR(all)) },
-    { label: "Execution", value: avgGrade(all) ?? "-" },
-    { label: "Monkey Rate", value: fmtPct(monkeyRate(all)) },
-    { label: "Rule Streak", value: `${ruleStreak(all)}` },
+    { label: "Win Rate", value: fmtPct(winRate(shown)) },
+    { label: "Avg R", value: fmtR(avgR(shown)) },
+    { label: "Execution", value: avgGrade(shown) ?? "-" },
+    { label: "Monkey Rate", value: fmtPct(monkeyRate(shown)) },
+    { label: "Rule Streak", value: `${ruleStreak(shown)}` },
   ];
 
   return (
     <div className="space-y-5">
       <QuoteCard />
 
+      <Card className="!p-3">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {RANGES.map((r) => (
+            <Link
+              key={r.key}
+              href={r.key === "all" ? "/" : `/?range=${r.key}`}
+              className={`whitespace-nowrap rounded-full border px-4 py-2 text-base transition-colors ${
+                range === r.key
+                  ? "border-accent bg-accent-soft font-semibold text-accent"
+                  : "border-line text-muted hover:text-ink"
+              }`}
+            >
+              {r.label}
+            </Link>
+          ))}
+        </div>
+      </Card>
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {tiles.map((t) => (
           <Card key={t.label} className="!p-4">
-            <p className="text-sm font-medium text-muted">
+            <p className="text-base font-medium text-muted">
               {t.label}
             </p>
             <p
@@ -85,12 +123,12 @@ export default async function DashboardPage({
         </Card>
       ) : (
         <>
-          <DisciplineCard trades={all} />
+          <DisciplineCard trades={shown} />
 
           <div className="grid gap-5 lg:grid-cols-5">
             <Card className="lg:col-span-3">
               <SectionTitle>Equity Curve</SectionTitle>
-              <EquityCurve points={equitySeries(all)} />
+              <EquityCurve points={equitySeries(shown)} />
             </Card>
             <Card className="lg:col-span-2">
               <SectionTitle>Calendar</SectionTitle>
@@ -98,19 +136,6 @@ export default async function DashboardPage({
             </Card>
           </div>
 
-          <Card>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold tracking-tight">Recent Trades</h2>
-              <Link href="/trades" className="text-base text-accent hover:underline">
-                View All
-              </Link>
-            </div>
-            <div className="space-y-2.5">
-              {all.slice(0, 6).map((t) => (
-                <TradeRow key={t.id} trade={t} />
-              ))}
-            </div>
-          </Card>
 
           {all.some((t) => t.isSample) ? (
             <form action={clearSampleData} className="flex justify-center pb-2">
@@ -142,13 +167,13 @@ function DisciplineCard({ trades: all }: { trades: Parameters<typeof disciplineS
       <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
         <div className="text-center sm:pr-8 sm:text-left">
           <p className={`font-mono text-6xl font-bold tabular-nums ${tone}`}>{score}</p>
-          <p className="mt-1 text-base font-semibold text-muted">{band}</p>
+          <p className="mt-1 text-lg font-semibold text-muted">{band}</p>
         </div>
         <div className="space-y-3">
           {components.map((c) =>
             c.value == null ? null : (
               <div key={c.label} className="flex items-center gap-3">
-                <span className="w-40 shrink-0 text-sm text-muted">{c.label}</span>
+                <span className="w-44 shrink-0 text-base text-muted">{c.label}</span>
                 <div className="h-4 flex-1 overflow-hidden rounded-full bg-surface-2">
                   <div
                     className="h-full rounded-full"
@@ -158,7 +183,7 @@ function DisciplineCard({ trades: all }: { trades: Parameters<typeof disciplineS
                     }}
                   />
                 </div>
-                <span className="w-12 shrink-0 text-right text-sm tabular-nums text-muted">
+                <span className="w-12 shrink-0 text-right text-base tabular-nums text-muted">
                   {Math.round(c.value * 100)}%
                 </span>
               </div>

@@ -1,10 +1,10 @@
 import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { journalEntries } from "@/db/schema";
-import { saveJournalEntry, deleteJournalEntry } from "@/actions/journal";
-import { Badge, Button, Card, Field, Input, Select, Textarea } from "@/components/ui";
+import { deleteJournalEntry } from "@/actions/journal";
+import { Badge, Button, Card } from "@/components/ui";
+import { JournalForm } from "@/components/JournalForm";
 import { fmtDate, todayISO } from "@/lib/format";
-import { GRADES } from "@/lib/constants";
 import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -33,58 +33,7 @@ export default async function JournalPage({
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <Card>
-        <h1 className="text-2xl font-semibold tracking-tight">Daily Journal</h1>
-      </Card>
-
-      <Card>
-        <form action={saveJournalEntry} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Date">
-              <Input type="date" name="entryDate" defaultValue={editDate} required />
-            </Field>
-            <Field label="Day Grade (Process, Not PnL)">
-              <Select name="dayGrade" defaultValue={current?.dayGrade ?? ""}>
-                <option value="">-</option>
-                {GRADES.map((g) => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-          </div>
-          <Field label="Pre-Market Plan">
-            <Textarea
-              name="premarketPlan"
-              placeholder="Key levels, overnight context, which setups you're hunting…"
-              defaultValue={current?.premarketPlan ?? ""}
-            />
-          </Field>
-          <Field label="Market Context">
-            <Textarea
-              name="marketContext"
-              rows={2}
-              placeholder="Balance or trend day? Where's value? News?"
-              defaultValue={current?.marketContext ?? ""}
-            />
-          </Field>
-          <Field label="Mindset Check-In">
-            <Textarea
-              name="mindset"
-              rows={2}
-              placeholder="How do you feel walking in? Anything carrying over from yesterday?"
-              defaultValue={current?.mindset ?? ""}
-            />
-          </Field>
-          <Field label="Post-Market Review">
-            <Textarea
-              name="review"
-              placeholder="Did you trade your plan? What did today's sample teach you?"
-              defaultValue={current?.review ?? ""}
-            />
-          </Field>
-          <Button type="submit">{current ? "Update Entry" : "Save Entry"}</Button>
-        </form>
+        <JournalForm editDate={editDate} current={current} />
       </Card>
 
       <div className="space-y-2">
@@ -95,13 +44,13 @@ export default async function JournalPage({
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
                 <span className="text-base font-medium">{fmtDate(e.entryDate)}</span>
                 <span className="flex items-center gap-2">
-                  {e.dayGrade ? <Badge>{`Day ${e.dayGrade}`}</Badge> : null}
-                  <a href={`/journal?date=${e.entryDate}`} className="text-sm text-accent hover:underline">
+                  {e.dayGrade ? <Badge>{`${e.dayGrade} Day`}</Badge> : null}
+                  <a href={`/journal?date=${e.entryDate}`} className="text-base text-accent hover:underline">
                     Edit
                   </a>
                 </span>
               </summary>
-              <div className="mt-3 space-y-3 text-sm">
+              <div className="mt-3 space-y-3 text-base">
                 {(
                   [
                     ["Pre-market plan", e.premarketPlan],
@@ -112,7 +61,7 @@ export default async function JournalPage({
                 ).map(([label, text]) =>
                   text ? (
                     <div key={label}>
-                      <p className="text-xs font-medium text-muted">{label}</p>
+                      <p className="text-sm font-medium text-muted">{label}</p>
                       <p className="mt-0.5 whitespace-pre-wrap leading-relaxed">{text}</p>
                     </div>
                   ) : null

@@ -331,12 +331,6 @@ export function TradeForm({
           <Field label="PnL (Points)">
             <Input type="number" name="pnlPoints" step="any" defaultValue={trade?.pnlPoints ?? ""} />
           </Field>
-          <Field label="Planned R">
-            <Input type="number" name="plannedR" step="any" defaultValue={trade?.plannedR ?? ""} />
-          </Field>
-          <Field label="Realized R (Auto If Blank)">
-            <Input type="number" name="realizedR" step="any" defaultValue={trade?.realizedR ?? ""} />
-          </Field>
         </div>
       </Card>
 

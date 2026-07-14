@@ -16,13 +16,13 @@ export function TradeRow({ trade }: { trade: TradeWithRelations }) {
     >
       <div className="flex items-center justify-between gap-3">
         <span className="flex min-w-0 items-baseline gap-2.5">
-          <span className="shrink-0 text-sm text-muted">{fmtDateShort(trade.tradeDate)}</span>
-          <span className="text-base font-semibold text-ink">{trade.instrument}</span>
-          <span className="text-sm text-muted">
+          <span className="shrink-0 text-base text-muted">{fmtDateShort(trade.tradeDate)}</span>
+          <span className="text-lg font-semibold text-ink">{trade.instrument}</span>
+          <span className="text-base text-muted">
             {trade.direction === "long" ? "Long" : "Short"}
           </span>
         </span>
-        <PnlText value={trade.pnl} className="shrink-0 text-base" />
+        <PnlText value={trade.pnl} className="shrink-0 text-lg" />
       </div>
       <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
         <LabelChip trade={trade} />

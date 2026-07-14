@@ -1,7 +1,8 @@
 "use client";
 
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cx } from "./ui";
 import { logout } from "@/actions/auth";
 
@@ -15,26 +16,48 @@ const LINKS = [
 
 export function Nav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [showLogout, setShowLogout] = useState(false);
+  const lastTap = useRef(0);
+
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   const linkClass = (active: boolean) =>
     cx(
-      "whitespace-nowrap py-1 text-[13px] transition-colors min-[400px]:text-sm sm:text-base",
+      "whitespace-nowrap py-1 text-base transition-colors",
       active ? "font-semibold text-ink" : "text-muted hover:text-ink"
     );
+
+  // Single tap goes home. A quick double tap reveals the phone Log Out row instead.
+  function onBrandClick(e: React.MouseEvent) {
+    e.preventDefault();
+    const now = Date.now();
+    if (now - lastTap.current < 350) {
+      lastTap.current = 0;
+      setShowLogout((v) => !v);
+      return;
+    }
+    lastTap.current = now;
+    setTimeout(() => {
+      if (lastTap.current !== 0 && Date.now() - lastTap.current >= 340) {
+        lastTap.current = 0;
+        router.push("/");
+      }
+    }, 360);
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-[rgba(7,11,18,0.85)] backdrop-blur-xl backdrop-saturate-150">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        {/* Top row. Brand on the left, primary action on the right, nav inline on desktop. */}
         <div className="flex items-center gap-5 pb-2 pt-3 sm:py-3.5">
-          <Link
-            href="/"
-            className="whitespace-nowrap text-[21px] font-bold tracking-tight text-ink sm:text-2xl"
+          <button
+            type="button"
+            onClick={onBrandClick}
+            className="cursor-pointer select-none whitespace-nowrap text-[21px] font-bold tracking-tight text-ink sm:text-2xl"
           >
             Don&apos;t Be A Monkey
-          </Link>
+          </button>
 
           <nav className="hidden flex-1 items-center gap-6 pl-2 sm:flex">
             {LINKS.map((l) => (
@@ -62,22 +85,25 @@ export function Nav() {
           </div>
         </div>
 
-        {/* Mobile nav row. Every link plus Log Out fits on screen with no scrolling. */}
-        <nav className="flex items-center justify-between gap-2 pb-2.5 min-[400px]:gap-3 sm:hidden">
+        {/* Phone nav. Five links, no Log Out. Double tap the brand to log out. */}
+        <nav className="flex items-center justify-between gap-3 pb-2.5 sm:hidden">
           {LINKS.map((l) => (
             <Link key={l.href} href={l.href} className={linkClass(isActive(l.href))}>
               {l.label}
             </Link>
           ))}
-          <form action={logout}>
+        </nav>
+
+        {showLogout ? (
+          <form action={logout} className="flex justify-center pb-3 sm:hidden">
             <button
               type="submit"
-              className="whitespace-nowrap py-1 text-[13px] text-muted transition-colors min-[400px]:text-sm hover:text-ink"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-[rgba(255,93,104,0.3)] bg-down-soft px-5 py-2.5 text-base font-semibold text-down"
             >
               Log Out
             </button>
           </form>
-        </nav>
+        ) : null}
       </div>
     </header>
   );

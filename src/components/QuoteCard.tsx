@@ -6,8 +6,8 @@ export function QuoteCard() {
   const quote = quoteOfTheDay();
   return (
     <Card>
-      <p className="text-base leading-relaxed text-ink">“{quote}”</p>
-      <p className="mt-2 text-xs text-faint">Mark Douglas, Trading In The Zone</p>
+      <p className="text-lg leading-relaxed text-ink">“{quote}”</p>
+      <p className="mt-2 text-sm text-faint">Mark Douglas, Trading In The Zone</p>
     </Card>
   );
 }

@@ -8,7 +8,7 @@ import { LabelChip, LocationBadge, GradeBadge, DirectionBadge, PnlText } from "@
 import { ScreenshotGallery } from "@/components/Lightbox";
 import { YouTubeEmbed } from "@/components/YouTubeEmbed";
 import { DeleteTradeButton } from "@/components/DeleteTradeButton";
-import { fmtDate, fmtR } from "@/lib/format";
+import { fmtDate } from "@/lib/format";
 import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -35,8 +35,6 @@ export default async function TradeDetailPage({
     ["Stop", trade.stopPrice],
     ["Target", trade.targetPrice],
     ["PnL (Points)", trade.pnlPoints],
-    ["Planned R", trade.plannedR != null ? fmtR(trade.plannedR) : null],
-    ["Realized R", trade.realizedR != null ? fmtR(trade.realizedR) : null],
   ];
 
   const mind: [string, string | null][] = [
@@ -97,8 +95,8 @@ export default async function TradeDetailPage({
           {detail.map(([k, v]) =>
             v != null && v !== "" ? (
               <div key={k}>
-                <dt className="text-xs text-muted">{k}</dt>
-                <dd className="mt-0.5 text-sm font-medium tabular-nums">{v}</dd>
+                <dt className="text-sm text-muted">{k}</dt>
+                <dd className="mt-0.5 text-base font-medium tabular-nums">{v}</dd>
               </div>
             ) : null
           )}
@@ -110,17 +108,17 @@ export default async function TradeDetailPage({
         <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
           {mind.map(([k, v]) => (
             <div key={k}>
-              <dt className="text-xs text-muted">{k}</dt>
-              <dd className="mt-0.5 text-sm font-medium">{v ?? "-"}</dd>
+              <dt className="text-sm text-muted">{k}</dt>
+              <dd className="mt-0.5 text-base font-medium">{v ?? "-"}</dd>
             </div>
           ))}
         </dl>
         {trade.setup?.rules ? (
           <div className="mt-4 rounded-xl bg-surface-2 px-3.5 py-2.5">
-            <p className="text-xs font-medium text-muted">
+            <p className="text-sm font-medium text-muted">
               Playbook rules for {trade.setup.name}
             </p>
-            <p className="mt-1 whitespace-pre-wrap text-sm">{trade.setup.rules}</p>
+            <p className="mt-1 whitespace-pre-wrap text-base">{trade.setup.rules}</p>
           </div>
         ) : null}
       </Card>
@@ -155,8 +153,8 @@ export default async function TradeDetailPage({
 function NarrativeBlock({ label, text }: { label: string; text: string }) {
   return (
     <div>
-      <p className="text-xs font-medium text-muted">{label}</p>
-      <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{text}</p>
+      <p className="text-sm font-medium text-muted">{label}</p>
+      <p className="mt-1 whitespace-pre-wrap text-base leading-relaxed">{text}</p>
     </div>
   );
 }

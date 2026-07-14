@@ -91,12 +91,15 @@ body > *:not(.galaxy-bg) {
   z-index: 1;
 }
 
-input,
-select,
-textarea,
-button {
-  font: inherit;
-  color: inherit;
+/* In the base layer so Tailwind utility classes always win over these resets. */
+@layer base {
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+    color: inherit;
+  }
 }
 
 select {

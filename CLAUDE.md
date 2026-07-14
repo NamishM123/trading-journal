@@ -26,3 +26,9 @@ These rules apply to every piece of user visible text in the app. UI copy, title
 11. The header is two rows on phones. Brand plus the New Recap button on top, nav links with Log Out below. One row on desktop.
 12. The page must never scroll horizontally. `html, body` use `overflow-x: clip`, cards use `overflow: hidden`, and wide content scrolls inside its own `overflow-x-auto` wrapper.
 13. Titles stand alone. No hint text, descriptions, or subheadings under any title or heading. `SectionTitle` has no hint prop.
+14. No page header cards that only repeat the page name. The nav already shows where you are.
+15. Every title is `text-2xl`. Body text is `text-base` minimum. Tiny text is only for axis labels and calendar day numbers.
+16. Filter chips and count badges share one pill size, `px-4 py-2 text-base`.
+17. Day grades read "A Day", "B Day", "C Day", never "Day A".
+18. On phones the header has no visible Log Out. Double tapping the brand reveals it. Desktop shows the Log Out button normally.
+19. Save actions never show a blank error page. Database failures return `{ error }` with the real message and render inside the form.

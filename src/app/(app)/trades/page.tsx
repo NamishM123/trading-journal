@@ -58,9 +58,9 @@ export default async function TradesPage({
   };
 
   const chip = (active: boolean) =>
-    `whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+    `whitespace-nowrap rounded-full border px-4 py-2 text-base transition-colors ${
       active
-        ? "border-accent bg-accent-soft text-accent font-medium"
+        ? "border-accent bg-accent-soft font-semibold text-accent"
         : "border-line text-muted hover:text-ink"
     }`;
 
@@ -69,7 +69,7 @@ export default async function TradesPage({
       <Card className="space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold tracking-tight">Trades</h1>
-          <span className="text-sm text-muted">
+          <span className="text-base text-muted">
             {filtered.length} of {all.length}
           </span>
         </div>
@@ -79,14 +79,14 @@ export default async function TradesPage({
             <span className={chip(true)}>{fmtDate(params.date)}</span>
             <Link
               href={link({ date: undefined })}
-              className="text-sm text-accent hover:underline"
+              className="text-base text-accent hover:underline"
             >
               Show All Days
             </Link>
           </div>
         ) : null}
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
         <Link href={link({ setup: undefined })} className={chip(!params.setup)}>
           All Setups
         </Link>
@@ -104,7 +104,7 @@ export default async function TradesPage({
         </Link>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
         {LOCATIONS.map((l) => (
           <Link
             key={l.value}
@@ -114,7 +114,6 @@ export default async function TradesPage({
             {l.value === "taper" ? "Taper" : l.value === "monkey" ? "Monkey" : "Unsure"}
           </Link>
         ))}
-        <span className="mx-1 h-4 w-px bg-line-strong" />
         {GRADES.map((g) => (
           <Link
             key={g}
@@ -124,7 +123,6 @@ export default async function TradesPage({
             {g}
           </Link>
         ))}
-        <span className="mx-1 h-4 w-px bg-line-strong" />
         {(["win", "loss"] as const).map((r) => (
           <Link
             key={r}

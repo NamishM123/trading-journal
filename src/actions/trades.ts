@@ -114,6 +114,7 @@ export async function saveTrade(formData: FormData): Promise<TradeActionResult> 
 
   let tradeId: number;
 
+  try {
   if (id) {
     const [own] = await db
       .select({ id: trades.id })
@@ -160,6 +161,11 @@ export async function saveTrade(formData: FormData): Promise<TradeActionResult> 
       evidenceTag: metas[i]?.evidenceTag || null,
       sortOrder: i,
     });
+  }
+
+  } catch (e) {
+    // Surface the real database or storage failure in the form instead of a blank error page.
+    return { error: `Could not save. ${e instanceof Error ? e.message : "Unknown error."}` };
   }
 
   revalidatePath("/");

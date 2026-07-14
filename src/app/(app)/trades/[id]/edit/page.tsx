@@ -3,7 +3,6 @@ import { and, asc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { setups, trades } from "@/db/schema";
 import { TradeForm } from "@/components/TradeForm";
-import { Card } from "@/components/ui";
 import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -31,9 +30,6 @@ export default async function EditTradePage({
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <Card>
-        <h1 className="text-2xl font-semibold tracking-tight">Edit Recap</h1>
-      </Card>
       <TradeForm setups={allSetups} trade={trade} />
     </div>
   );

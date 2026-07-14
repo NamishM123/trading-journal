@@ -31,10 +31,6 @@ export default async function PlaybookPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <Card>
-        <h1 className="text-2xl font-semibold tracking-tight">Playbook</h1>
-      </Card>
-
       {active.map((s) => {
         const st = statsForTrades(allTrades.filter((t) => t.setupId === s.id));
         const sample = Math.min(st.count, SAMPLE_SIZE_TARGET);
@@ -42,17 +38,20 @@ export default async function PlaybookPage() {
           <Card key={s.id}>
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
-                <h2 className="text-lg font-semibold tracking-tight">{s.name}</h2>
+                <h2 className="text-2xl font-semibold tracking-tight">{s.name}</h2>
                 {s.description ? (
-                  <p className="mt-1 text-sm text-muted">{s.description}</p>
+                  <p className="mt-1 text-base text-muted">{s.description}</p>
                 ) : null}
                 {s.rules ? (
-                  <p className="mt-2 whitespace-pre-wrap rounded-xl bg-surface-2 px-3 py-2 text-sm">
+                  <p className="mt-2 whitespace-pre-wrap rounded-xl bg-surface-2 px-3 py-2 text-base">
                     {s.rules}
                   </p>
                 ) : null}
               </div>
-              <Badge tone={st.count >= SAMPLE_SIZE_TARGET ? "up" : "neutral"}>
+              <Badge
+                tone={st.count >= SAMPLE_SIZE_TARGET ? "up" : "neutral"}
+                className="px-4 py-2 text-base"
+              >
                 {st.count} trade{st.count === 1 ? "" : "s"}
               </Badge>
             </div>
@@ -143,11 +142,11 @@ export default async function PlaybookPage() {
           <div className="space-y-2">
             {archived.map((s) => (
               <div key={s.id} className="flex items-center justify-between gap-3">
-                <span className="text-sm text-muted">{s.name}</span>
+                <span className="text-base text-muted">{s.name}</span>
                 <form action={toggleSetupActive}>
                   <input type="hidden" name="id" value={s.id} />
                   <input type="hidden" name="active" value="true" />
-                  <button type="submit" className="text-sm text-accent hover:underline">
+                  <button type="submit" className="text-base text-accent hover:underline">
                     Restore
                   </button>
                 </form>
@@ -163,8 +162,8 @@ export default async function PlaybookPage() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs text-muted">{label}</dt>
-      <dd className="mt-0.5 text-sm font-semibold tabular-nums">{value}</dd>
+      <dt className="text-sm text-muted">{label}</dt>
+      <dd className="mt-0.5 text-lg font-semibold tabular-nums">{value}</dd>
     </div>
   );
 }
