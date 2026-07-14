@@ -15,6 +15,13 @@
       "when": 1783330504007,
       "tag": "0001_aspiring_payback",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783993637279,
+      "tag": "0002_multi_user",
+      "breakpoints": true
     }
   ]
 }

@@ -7,11 +7,21 @@ import {
   doublePrecision,
   timestamp,
   date,
+  unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const setups = pgTable("setups", {
   id: serial("id").primaryKey(),
+  // Nullable so rows from the single-user era stay valid but invisible.
+  userId: integer("user_id").references(() => users.id),
   name: text("name").notNull(),
   description: text("description").notNull().default(""),
   rules: text("rules").notNull().default(""),
@@ -22,6 +32,8 @@ export const setups = pgTable("setups", {
 
 export const trades = pgTable("trades", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  isSample: boolean("is_sample").notNull().default(false),
   tradeDate: date("trade_date").notNull(),
   instrument: text("instrument").notNull(),
   direction: text("direction").notNull(), // long | short
@@ -86,16 +98,22 @@ export const screenshots = pgTable("screenshots", {
   sortOrder: integer("sort_order").notNull().default(0),
 });
 
-export const journalEntries = pgTable("journal_entries", {
-  id: serial("id").primaryKey(),
-  entryDate: date("entry_date").notNull().unique(),
-  premarketPlan: text("premarket_plan").notNull().default(""),
-  marketContext: text("market_context").notNull().default(""),
-  mindset: text("mindset").notNull().default(""),
-  review: text("review").notNull().default(""),
-  dayGrade: text("day_grade"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+export const journalEntries = pgTable(
+  "journal_entries",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").references(() => users.id),
+    isSample: boolean("is_sample").notNull().default(false),
+    entryDate: date("entry_date").notNull(),
+    premarketPlan: text("premarket_plan").notNull().default(""),
+    marketContext: text("market_context").notNull().default(""),
+    mindset: text("mindset").notNull().default(""),
+    review: text("review").notNull().default(""),
+    dayGrade: text("day_grade"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [unique("journal_entries_user_date").on(t.userId, t.entryDate)]
+);
 
 export const setupsRelations = relations(setups, ({ many }) => ({
   trades: many(trades),
@@ -110,6 +128,7 @@ export const screenshotsRelations = relations(screenshots, ({ one }) => ({
   trade: one(trades, { fields: [screenshots.tradeId], references: [trades.id] }),
 }));
 
+export type User = typeof users.$inferSelect;
 export type Setup = typeof setups.$inferSelect;
 export type Trade = typeof trades.$inferSelect;
 export type Screenshot = typeof screenshots.$inferSelect;

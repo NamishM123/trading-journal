@@ -15,5 +15,9 @@ These rules apply to every piece of user visible text in the app. UI copy, title
 
 1. Use the Apple system font stack for all text. Do not add Google Fonts or any external font. The stack lives in `src/app/globals.css` as `--font-sans` and `--font-mono`.
 2. No decorative squares, dots, or bullets next to titles.
-3. No logo mark. The brand is the plain text "Trading Journal".
+3. No logo mark. The brand is the plain text "Don't Be A Monkey" and the header title always stays on one line.
 4. Titles are large and use normal case. Never style titles or labels as all uppercase.
+5. Every button is the same size. Pill shape, `px-5 py-2.5 text-base font-semibold rounded-full`, via the shared `Button` component in `src/components/ui.tsx`. Links styled as buttons match it exactly.
+6. All circular icon buttons are the same size, `h-9 w-9`.
+7. Everything on a page lives inside the standard `Card` container from `src/components/ui.tsx`. No one-off container styles.
+8. Content inside a container must never overlap or collide. When space runs out, stack vertically and skip a line instead. Form grids collapse to one column on phones.

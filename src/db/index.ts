@@ -1,6 +1,5 @@
 import * as schema from "./schema";
 import type { PgliteDatabase } from "drizzle-orm/pglite";
-import { DEFAULT_SETUPS } from "@/lib/constants";
 
 export type Db = PgliteDatabase<typeof schema>;
 
@@ -26,25 +25,8 @@ async function initDb(): Promise<Db> {
     db = drizzle(client, { schema });
     await migrate(db, { migrationsFolder: "./drizzle" });
   }
-  await seedIfEmpty(db);
+  // Default setups are seeded per account at signup, not globally.
   return db;
-}
-
-async function seedIfEmpty(db: Db) {
-  try {
-    const existing = await db.select({ id: schema.setups.id }).from(schema.setups).limit(1);
-    if (existing.length === 0) {
-      await db.insert(schema.setups).values(
-        DEFAULT_SETUPS.map((s, i) => ({
-          name: s.name,
-          description: s.description,
-          sortOrder: i,
-        }))
-      );
-    }
-  } catch {
-    // Table missing (migrations not applied yet in production) — surfaces on first query.
-  }
 }
 
 export function getDb(): Promise<Db> {

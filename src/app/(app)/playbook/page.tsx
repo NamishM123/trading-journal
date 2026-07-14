@@ -1,4 +1,4 @@
-import { asc, desc } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { setups, trades } from "@/db/schema";
 import { createSetup, updateSetup, toggleSetupActive } from "@/actions/setups";
@@ -6,14 +6,21 @@ import { Badge, Button, Card, Field, Input, Textarea } from "@/components/ui";
 import { fmtMoney, fmtPct, fmtR } from "@/lib/format";
 import { statsForTrades } from "@/lib/stats";
 import { SAMPLE_SIZE_TARGET } from "@/lib/constants";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function PlaybookPage() {
+  const userId = await requireUserId();
   const db = await getDb();
   const [allSetups, allTrades] = await Promise.all([
-    db.select().from(setups).orderBy(asc(setups.sortOrder), asc(setups.id)),
+    db
+      .select()
+      .from(setups)
+      .where(eq(setups.userId, userId))
+      .orderBy(asc(setups.sortOrder), asc(setups.id)),
     db.query.trades.findMany({
+      where: eq(trades.userId, userId),
       with: { setup: true, screenshots: true },
       orderBy: [desc(trades.tradeDate)],
     }),
@@ -24,14 +31,14 @@ export default async function PlaybookPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <div>
+      <Card>
         <h1 className="text-2xl font-semibold tracking-tight">Playbook</h1>
         <p className="mt-1 text-sm text-muted">
           If you can&apos;t assign a trade one of these labels, you don&apos;t take it. Douglas&apos;s
           consistency exercise is to execute one setup {SAMPLE_SIZE_TARGET} times, graded only
           on process.
         </p>
-      </div>
+      </Card>
 
       {active.map((s) => {
         const st = statsForTrades(allTrades.filter((t) => t.setupId === s.id));

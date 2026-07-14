@@ -1,15 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { journalEntries } from "@/db/schema";
+import { requireUserId } from "@/lib/session";
 
 export async function saveJournalEntry(formData: FormData) {
+  const userId = await requireUserId();
   const entryDate = String(formData.get("entryDate") ?? "").trim();
   if (!entryDate) return;
 
   const values = {
+    userId,
     entryDate,
     premarketPlan: String(formData.get("premarketPlan") ?? "").trim(),
     marketContext: String(formData.get("marketContext") ?? "").trim(),
@@ -22,7 +25,7 @@ export async function saveJournalEntry(formData: FormData) {
   const [existing] = await db
     .select({ id: journalEntries.id })
     .from(journalEntries)
-    .where(eq(journalEntries.entryDate, entryDate));
+    .where(and(eq(journalEntries.entryDate, entryDate), eq(journalEntries.userId, userId)));
 
   if (existing) {
     await db.update(journalEntries).set(values).where(eq(journalEntries.id, existing.id));
@@ -33,9 +36,12 @@ export async function saveJournalEntry(formData: FormData) {
 }
 
 export async function deleteJournalEntry(formData: FormData) {
+  const userId = await requireUserId();
   const id = Number(formData.get("id"));
   if (!id) return;
   const db = await getDb();
-  await db.delete(journalEntries).where(eq(journalEntries.id, id));
+  await db
+    .delete(journalEntries)
+    .where(and(eq(journalEntries.id, id), eq(journalEntries.userId, userId)));
   revalidatePath("/journal");
 }

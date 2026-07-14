@@ -1,13 +1,15 @@
 import Link from "next/link";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { trades } from "@/db/schema";
-import { Card, EmptyState, SectionTitle } from "@/components/ui";
+import { Button, Card, SectionTitle } from "@/components/ui";
+import { loadSampleData, clearSampleData } from "@/actions/sample";
 import { QuoteCard } from "@/components/QuoteCard";
 import { TradeRow } from "@/components/TradeRow";
 import { EquityCurve } from "@/components/EquityCurve";
 import { CalendarHeatmap } from "@/components/CalendarHeatmap";
 import { fmtMoney, fmtPct, fmtR } from "@/lib/format";
+import { requireUserId } from "@/lib/session";
 import {
   avgGrade,
   dailyPnl,
@@ -22,8 +24,10 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
+  const userId = await requireUserId();
   const db = await getDb();
   const all = await db.query.trades.findMany({
+    where: eq(trades.userId, userId),
     with: { setup: true, screenshots: true },
     orderBy: [desc(trades.tradeDate), desc(trades.id)],
   });
@@ -45,11 +49,11 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {tiles.map((t) => (
           <Card key={t.label} className="!p-4">
-            <p className="text-xs font-medium text-faint">
+            <p className="text-sm font-medium text-muted">
               {t.label}
             </p>
             <p
-              className={`mt-1 font-mono text-xl font-bold tabular-nums ${
+              className={`mt-1.5 font-mono text-2xl font-bold tabular-nums ${
                 t.tone === "up" ? "text-up" : t.tone === "down" ? "text-down" : ""
               }`}
             >
@@ -60,10 +64,16 @@ export default async function DashboardPage() {
       </div>
 
       {all.length === 0 ? (
-        <EmptyState
-          title="No trades yet."
-          hint="Take a trade you can name, then recap it here."
-        />
+        <Card className="space-y-4 text-center">
+          <p className="text-base font-medium text-ink">No trades yet.</p>
+          <p className="text-sm text-muted">
+            Take a trade you can name, then recap it here. Or load sample data to
+            explore every feature first.
+          </p>
+          <form action={loadSampleData}>
+            <Button type="submit">Load Sample Data</Button>
+          </form>
+        </Card>
       ) : (
         <>
           <div className="grid gap-5 lg:grid-cols-5">
@@ -81,7 +91,7 @@ export default async function DashboardPage() {
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-xl font-semibold tracking-tight">Recent Trades</h2>
               <Link href="/trades" className="text-sm text-accent hover:underline">
-                View all
+                View All
               </Link>
             </div>
             <div className="space-y-2">
@@ -90,6 +100,14 @@ export default async function DashboardPage() {
               ))}
             </div>
           </div>
+
+          {all.some((t) => t.isSample) ? (
+            <form action={clearSampleData} className="flex justify-center pb-2">
+              <Button type="submit" variant="ghost">
+                Clear Sample Data
+              </Button>
+            </form>
+          ) : null}
         </>
       )}
     </div>

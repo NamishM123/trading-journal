@@ -1,8 +1,10 @@
 import { getIronSession, type SessionOptions } from "iron-session";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export type SessionData = {
-  loggedIn?: boolean;
+  userId?: number;
+  username?: string;
 };
 
 export const sessionOptions: SessionOptions = {
@@ -22,6 +24,9 @@ export async function getSession() {
   return getIronSession<SessionData>(await cookies(), sessionOptions);
 }
 
-export function appPassword() {
-  return process.env.APP_PASSWORD ?? "trade";
+/** The logged-in user's id, or a redirect to /login. Call at the top of pages and actions. */
+export async function requireUserId(): Promise<number> {
+  const session = await getSession();
+  if (!session.userId) redirect("/login");
+  return session.userId;
 }

@@ -7,11 +7,11 @@ export async function proxy(req: NextRequest) {
   const session = await getIronSession<SessionData>(req, res, sessionOptions);
   const isLogin = req.nextUrl.pathname.startsWith("/login");
 
-  if (!session.loggedIn && !isLogin) {
+  if (!session.userId && !isLogin) {
     const url = new URL("/login", req.url);
     return NextResponse.redirect(url);
   }
-  if (session.loggedIn && isLogin) {
+  if (session.userId && isLogin) {
     return NextResponse.redirect(new URL("/", req.url));
   }
   return res;

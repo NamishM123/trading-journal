@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { trades } from "@/db/schema";
-import { EmptyState } from "@/components/ui";
+import { setups, trades } from "@/db/schema";
+import { Card, EmptyState } from "@/components/ui";
 import { TradeRow } from "@/components/TradeRow";
 import { LOCATIONS, GRADES } from "@/lib/constants";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -21,13 +22,15 @@ export default async function TradesPage({
   searchParams: Promise<Search>;
 }) {
   const params = await searchParams;
+  const userId = await requireUserId();
   const db = await getDb();
   const [all, setupList] = await Promise.all([
     db.query.trades.findMany({
+      where: eq(trades.userId, userId),
       with: { setup: true, screenshots: true },
       orderBy: [desc(trades.tradeDate), desc(trades.id)],
     }),
-    db.query.setups.findMany(),
+    db.query.setups.findMany({ where: eq(setups.userId, userId) }),
   ]);
 
   const filtered = all.filter((t) => {
@@ -52,7 +55,7 @@ export default async function TradesPage({
   };
 
   const chip = (active: boolean) =>
-    `whitespace-nowrap rounded-full border px-3 py-1 text-xs transition-colors ${
+    `whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
       active
         ? "border-accent bg-accent-soft text-accent font-medium"
         : "border-line text-muted hover:text-ink"
@@ -60,14 +63,15 @@ export default async function TradesPage({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Trades</h1>
-        <span className="text-sm text-muted">
-          {filtered.length} of {all.length}
-        </span>
-      </div>
+      <Card className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold tracking-tight">Trades</h1>
+          <span className="text-sm text-muted">
+            {filtered.length} of {all.length}
+          </span>
+        </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
         <Link href={link({ setup: undefined })} className={chip(!params.setup)}>
           All Setups
         </Link>
@@ -83,9 +87,9 @@ export default async function TradesPage({
         <Link href={link({ setup: "nolabel" })} className={chip(params.setup === "nolabel")}>
           Unlabeled
         </Link>
-      </div>
+        </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
         {LOCATIONS.map((l) => (
           <Link
             key={l.value}
@@ -115,7 +119,8 @@ export default async function TradesPage({
             {r === "win" ? "Winners" : "Losers"}
           </Link>
         ))}
-      </div>
+        </div>
+      </Card>
 
       {filtered.length === 0 ? (
         <EmptyState title="No trades match." hint="Loosen the filters or log a new recap." />

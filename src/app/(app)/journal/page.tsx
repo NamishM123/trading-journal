@@ -1,10 +1,11 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { journalEntries } from "@/db/schema";
 import { saveJournalEntry, deleteJournalEntry } from "@/actions/journal";
 import { Badge, Button, Card, Field, Input, Select, Textarea } from "@/components/ui";
 import { fmtDate, todayISO } from "@/lib/format";
 import { GRADES } from "@/lib/constants";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -15,25 +16,33 @@ export default async function JournalPage({
 }) {
   const { date } = await searchParams;
   const editDate = date ?? todayISO();
+  const userId = await requireUserId();
   const db = await getDb();
   const [entries, [current]] = await Promise.all([
-    db.select().from(journalEntries).orderBy(desc(journalEntries.entryDate)),
-    db.select().from(journalEntries).where(eq(journalEntries.entryDate, editDate)),
+    db
+      .select()
+      .from(journalEntries)
+      .where(eq(journalEntries.userId, userId))
+      .orderBy(desc(journalEntries.entryDate)),
+    db
+      .select()
+      .from(journalEntries)
+      .where(and(eq(journalEntries.entryDate, editDate), eq(journalEntries.userId, userId))),
   ]);
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <div>
+      <Card>
         <h1 className="text-2xl font-semibold tracking-tight">Daily Journal</h1>
         <p className="mt-1 text-sm text-muted">
           The mindset check-in. Plan before the open and review after the close. The
           consistency you seek is in your mind.
         </p>
-      </div>
+      </Card>
 
       <Card>
         <form action={saveJournalEntry} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Date">
               <Input type="date" name="entryDate" defaultValue={editDate} required />
             </Field>
@@ -86,9 +95,9 @@ export default async function JournalPage({
         {entries
           .filter((e) => e.entryDate !== editDate)
           .map((e) => (
-            <details key={e.id} className="rounded-2xl border border-line bg-surface px-4 py-3">
+            <details key={e.id} className="rounded-2xl border border-line bg-surface px-5 py-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
-                <span className="text-sm font-medium">{fmtDate(e.entryDate)}</span>
+                <span className="text-base font-medium">{fmtDate(e.entryDate)}</span>
                 <span className="flex items-center gap-2">
                   {e.dayGrade ? <Badge>{`Day ${e.dayGrade}`}</Badge> : null}
                   <a href={`/journal?date=${e.entryDate}`} className="text-sm text-accent hover:underline">

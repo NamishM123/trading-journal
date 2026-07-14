@@ -3,7 +3,7 @@ import { GalaxyBackground } from "@/components/GalaxyKit";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Trading Journal",
+  title: "Don't Be A Monkey",
   description: "Orderflow trade recaps with the Label Rule",
 };
 

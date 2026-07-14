@@ -2,10 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { trades, screenshots } from "@/db/schema";
+import { trades, screenshots, setups } from "@/db/schema";
 import { saveFile, deleteFile } from "@/lib/storage";
+import { requireUserId } from "@/lib/session";
 
 export type TradeActionResult = { error: string } | undefined;
 
@@ -31,6 +32,7 @@ type ScreenshotMeta = { chartType: string; caption: string; evidenceTag?: string
 type ExistingMeta = { id: number; chartType: string; caption: string; evidenceTag?: string };
 
 export async function saveTrade(formData: FormData): Promise<TradeActionResult> {
+  const userId = await requireUserId();
   const id = num(formData, "id");
   const tradeDate = str(formData, "tradeDate");
   const instrument = str(formData, "instrument");
@@ -51,6 +53,15 @@ export async function saveTrade(formData: FormData): Promise<TradeActionResult> 
   const setupId = noLabel ? null : Number(label.replace("setup:", "")) || null;
   if (!noLabel && !setupId) return { error: "Pick a setup from your playbook." };
 
+  const db = await getDb();
+  if (setupId) {
+    const [ownSetup] = await db
+      .select({ id: setups.id })
+      .from(setups)
+      .where(and(eq(setups.id, setupId), eq(setups.userId, userId)));
+    if (!ownSetup) return { error: "Pick a setup from your playbook." };
+  }
+
   const entryPrice = num(formData, "entryPrice");
   const exitPrice = num(formData, "exitPrice");
   const stopPrice = num(formData, "stopPrice");
@@ -66,6 +77,7 @@ export async function saveTrade(formData: FormData): Promise<TradeActionResult> 
   }
 
   const values = {
+    userId,
     tradeDate,
     instrument,
     direction,
@@ -99,10 +111,14 @@ export async function saveTrade(formData: FormData): Promise<TradeActionResult> 
     updatedAt: new Date(),
   };
 
-  const db = await getDb();
   let tradeId: number;
 
   if (id) {
+    const [own] = await db
+      .select({ id: trades.id })
+      .from(trades)
+      .where(and(eq(trades.id, id), eq(trades.userId, userId)));
+    if (!own) return { error: "That trade is not in your journal." };
     await db.update(trades).set(values).where(eq(trades.id, id));
     tradeId = id;
 
@@ -112,11 +128,14 @@ export async function saveTrade(formData: FormData): Promise<TradeActionResult> 
       await db
         .update(screenshots)
         .set({ chartType: s.chartType, caption: s.caption, evidenceTag: s.evidenceTag || null })
-        .where(eq(screenshots.id, s.id));
+        .where(and(eq(screenshots.id, s.id), eq(screenshots.tradeId, tradeId)));
     }
     const deletedIds: number[] = JSON.parse(str(formData, "deletedScreenshotIds") || "[]");
     for (const sid of deletedIds) {
-      const [row] = await db.select().from(screenshots).where(eq(screenshots.id, sid));
+      const [row] = await db
+        .select()
+        .from(screenshots)
+        .where(and(eq(screenshots.id, sid), eq(screenshots.tradeId, tradeId)));
       if (row) {
         await deleteFile(row.url);
         await db.delete(screenshots).where(eq(screenshots.id, sid));
@@ -149,9 +168,15 @@ export async function saveTrade(formData: FormData): Promise<TradeActionResult> 
 }
 
 export async function deleteTrade(formData: FormData) {
+  const userId = await requireUserId();
   const id = Number(formData.get("id"));
   if (!id) return;
   const db = await getDb();
+  const [own] = await db
+    .select({ id: trades.id })
+    .from(trades)
+    .where(and(eq(trades.id, id), eq(trades.userId, userId)));
+  if (!own) return;
   const shots = await db.select().from(screenshots).where(eq(screenshots.tradeId, id));
   for (const s of shots) {
     await deleteFile(s.url);

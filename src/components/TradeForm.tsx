@@ -281,7 +281,7 @@ export function TradeForm({
       {/* Trade details */}
       <Card>
         <SectionTitle>Trade Details</SectionTitle>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Date">
             <Input type="date" name="tradeDate" defaultValue={trade?.tradeDate ?? todayISO()} required />
           </Field>
@@ -342,7 +342,7 @@ export function TradeForm({
         <SectionTitle hint="Grade the process, not the outcome. A perfectly executed loser is an A. A winning monkey trade is not.">
           Mind, Trading In The Zone
         </SectionTitle>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field label="Emotion Before Entry">
             <EmotionSelect name="emotionBefore" defaultValue={trade?.emotionBefore ?? ""} />
           </Field>
@@ -508,7 +508,7 @@ function ShotTile({
         <button
           type="button"
           onClick={onRemove}
-          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-xs text-white hover:bg-black/80"
+          className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-sm text-white hover:bg-black/80"
           aria-label="Remove screenshot"
         >
           ✕

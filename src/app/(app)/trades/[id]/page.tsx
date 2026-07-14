@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { trades } from "@/db/schema";
 import { Card, SectionTitle, Badge } from "@/components/ui";
@@ -9,6 +9,7 @@ import { ScreenshotGallery } from "@/components/Lightbox";
 import { YouTubeEmbed } from "@/components/YouTubeEmbed";
 import { DeleteTradeButton } from "@/components/DeleteTradeButton";
 import { fmtDate, fmtR } from "@/lib/format";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -18,9 +19,10 @@ export default async function TradeDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const userId = await requireUserId();
   const db = await getDb();
   const trade = await db.query.trades.findFirst({
-    where: eq(trades.id, Number(id)),
+    where: and(eq(trades.id, Number(id)), eq(trades.userId, userId)),
     with: { setup: true, screenshots: true },
   });
   if (!trade) notFound();
@@ -51,7 +53,7 @@ export default async function TradeDetailPage({
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <Card className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm text-muted">{fmtDate(trade.tradeDate)}</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
@@ -72,7 +74,7 @@ export default async function TradeDetailPage({
           </Link>
           <DeleteTradeButton tradeId={trade.id} />
         </div>
-      </div>
+      </Card>
 
       {trade.screenshots.length > 0 ? (
         <Card>

@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { asc, desc } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { setups, trades } from "@/db/schema";
 import { Badge, Card, EmptyState, SectionTitle } from "@/components/ui";
 import { PnlText } from "@/components/badges";
 import { fmtDateShort, fmtMoney, fmtPct, fmtR } from "@/lib/format";
 import { statsForTrades, violations } from "@/lib/stats";
+import { requireUserId } from "@/lib/session";
 import {
   EDGE_TYPES,
   EMOTIONS,
@@ -18,10 +19,16 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function StatsPage() {
+  const userId = await requireUserId();
   const db = await getDb();
   const [allSetups, all] = await Promise.all([
-    db.select().from(setups).orderBy(asc(setups.sortOrder), asc(setups.id)),
+    db
+      .select()
+      .from(setups)
+      .where(eq(setups.userId, userId))
+      .orderBy(asc(setups.sortOrder), asc(setups.id)),
     db.query.trades.findMany({
+      where: eq(trades.userId, userId),
       with: { setup: true, screenshots: true },
       orderBy: [desc(trades.tradeDate), desc(trades.id)],
     }),
@@ -30,7 +37,9 @@ export default async function StatsPage() {
   if (all.length === 0) {
     return (
       <div className="mx-auto max-w-3xl">
-        <h1 className="mb-4 text-2xl font-semibold tracking-tight">Stats</h1>
+        <Card className="mb-5">
+          <h1 className="text-2xl font-semibold tracking-tight">Stats</h1>
+        </Card>
         <EmptyState title="No data yet." hint="Stats appear once you log recaps." />
       </div>
     );
@@ -82,11 +91,13 @@ export default async function StatsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <h1 className="text-2xl font-semibold tracking-tight">Stats</h1>
+      <Card>
+        <h1 className="text-2xl font-semibold tracking-tight">Stats</h1>
+      </Card>
 
       <Card>
         <SectionTitle hint="Your edge, setup by setup. This is the distribution Douglas says to trust.">
-          Edge by setup
+          Edge By Setup
         </SectionTitle>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[540px] text-sm">
@@ -140,7 +151,7 @@ export default async function StatsPage() {
 
       <Card>
         <SectionTitle hint="What trading inside balance actually costs you.">
-          Taper vs Monkey
+          Taper Vs Monkey
         </SectionTitle>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-xl border border-line p-4">
@@ -172,7 +183,7 @@ export default async function StatsPage() {
 
       <Card>
         <SectionTitle hint="If A-trades make money and F-trades lose it, the problem was never the market.">
-          Process vs outcome
+          Process Vs Outcome
         </SectionTitle>
         <div className="space-y-2">
           {byGrade.map(({ grade, trades: gts }) => (
@@ -198,7 +209,7 @@ export default async function StatsPage() {
       {byEmotion.length > 0 ? (
         <Card>
           <SectionTitle hint="Emotion before entry vs how those trades went.">
-            Emotion at entry
+            Emotion At Entry
           </SectionTitle>
           <div className="space-y-2">
             {byEmotion.map(({ emotion, trades: ets }) => (
@@ -218,7 +229,7 @@ export default async function StatsPage() {
       {byEdgeType.length > 0 ? (
         <Card>
           <SectionTitle hint="Douglas says an edge is a higher probability, not a prediction. Where does your money actually come from?">
-            Edge or prediction?
+            Edge Or Prediction?
           </SectionTitle>
           <div className="space-y-2">
             {byEdgeType.map(({ label, value, trades: ets }) => (
@@ -238,7 +249,7 @@ export default async function StatsPage() {
       {byRiskAcceptance.length > 0 ? (
         <Card>
           <SectionTitle hint="When you accept risk, your decisions improve. When you resist it, you sabotage. Here's the proof.">
-            Risk acceptance vs PnL
+            Risk Acceptance Vs PnL
           </SectionTitle>
           <div className="space-y-2">
             {byRiskAcceptance.map(({ answer, trades: rts }) => (
@@ -258,7 +269,7 @@ export default async function StatsPage() {
       {byTiming.length > 0 ? (
         <Card>
           <SectionTitle hint="For DOM trading, most damage comes from being early, late, or chasing.">
-            Execution timing vs PnL
+            Execution Timing Vs PnL
           </SectionTitle>
           <div className="space-y-2">
             {byTiming.map(({ timing, trades: tts }) => (
@@ -278,7 +289,7 @@ export default async function StatsPage() {
       {byMistake.length > 0 ? (
         <Card>
           <SectionTitle hint="What each management mistake has cost you.">
-            Management mistakes vs PnL
+            Management Mistakes Vs PnL
           </SectionTitle>
           <div className="space-y-2">
             {byMistake.map(({ mistake, trades: mts }) => (
@@ -298,7 +309,7 @@ export default async function StatsPage() {
       {viols.length > 0 ? (
         <Card>
           <SectionTitle hint="Unlabeled trades and broken rules. Read these before your next session.">
-            Violation log
+            Violation Log
           </SectionTitle>
           <div className="space-y-2">
             {viols.map((t) => (

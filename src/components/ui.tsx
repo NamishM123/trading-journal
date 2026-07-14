@@ -23,7 +23,7 @@ export function Card({
       glowColor="blue"
       radius={16}
       className={cx(
-        "block p-5 shadow-[0_14px_34px_rgba(0,0,0,0.38)]",
+        "block p-6 shadow-[0_14px_34px_rgba(0,0,0,0.38)]",
         className
       )}
     >
@@ -64,7 +64,8 @@ export function Button({ variant = "primary", className, ...props }: ButtonProps
   return (
     <button
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50",
+        // One button size everywhere. Same padding, same text size, pill shape.
+        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2.5 text-base font-semibold transition-colors disabled:opacity-50",
         styles,
         className
       )}
@@ -78,7 +79,7 @@ export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       className={cx(
-        "w-full rounded-xl border border-line bg-[rgba(6,11,19,0.65)] px-3 py-2 text-sm text-ink transition-colors hover:border-line-strong",
+        "w-full rounded-xl border border-line bg-[rgba(6,11,19,0.65)] px-3.5 py-2.5 text-base text-ink transition-colors hover:border-line-strong",
         className
       )}
       {...rest}
@@ -91,7 +92,7 @@ export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       className={cx(
-        "w-full rounded-xl border border-line bg-[rgba(6,11,19,0.65)] px-3 py-2 pr-9 text-sm text-ink transition-colors hover:border-line-strong",
+        "w-full rounded-xl border border-line bg-[rgba(6,11,19,0.65)] px-3.5 py-2.5 pr-9 text-base text-ink transition-colors hover:border-line-strong",
         className
       )}
       {...rest}
@@ -104,7 +105,7 @@ export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       className={cx(
-        "w-full rounded-xl border border-line bg-[rgba(6,11,19,0.65)] px-3 py-2 text-sm leading-relaxed text-ink transition-colors hover:border-line-strong",
+        "w-full rounded-xl border border-line bg-[rgba(6,11,19,0.65)] px-3.5 py-2.5 text-base leading-relaxed text-ink transition-colors hover:border-line-strong",
         className
       )}
       rows={props.rows ?? 3}
@@ -124,7 +125,7 @@ export function Field({
 }) {
   return (
     <label className={cx("block", className)}>
-      <span className="mb-1.5 block text-[0.8rem] font-medium text-muted">
+      <span className="mb-1.5 block text-sm font-medium text-muted">
         {label}
       </span>
       {children}
@@ -163,9 +164,9 @@ export function Badge({
 
 export function EmptyState({ title, hint }: { title: string; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-line-strong px-6 py-12 text-center">
-      <p className="text-sm font-medium text-ink">{title}</p>
+    <Card className="px-6 py-12 text-center">
+      <p className="text-base font-medium text-ink">{title}</p>
       {hint ? <p className="mt-1 text-sm text-muted">{hint}</p> : null}
-    </div>
+    </Card>
   );
 }
