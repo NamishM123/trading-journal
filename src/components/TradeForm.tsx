@@ -285,6 +285,9 @@ export function TradeForm({
           <Field label="Date">
             <Input type="date" name="tradeDate" defaultValue={trade?.tradeDate ?? todayISO()} required />
           </Field>
+          <Field label="Entry Time">
+            <Input type="time" name="entryTime" defaultValue={trade?.entryTime ?? ""} />
+          </Field>
           <Field label="Instrument">
             <>
               <Input name="instrument" list="instruments" defaultValue={trade?.instrument ?? "ES"} required />

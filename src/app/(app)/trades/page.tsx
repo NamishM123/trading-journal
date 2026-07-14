@@ -5,6 +5,7 @@ import { setups, trades } from "@/db/schema";
 import { Card, EmptyState } from "@/components/ui";
 import { TradeRow } from "@/components/TradeRow";
 import { LOCATIONS, GRADES } from "@/lib/constants";
+import { fmtDate } from "@/lib/format";
 import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,7 @@ type Search = {
   location?: string;
   grade?: string;
   result?: string;
+  date?: string;
 };
 
 export default async function TradesPage({
@@ -34,6 +36,7 @@ export default async function TradesPage({
   ]);
 
   const filtered = all.filter((t) => {
+    if (params.date && t.tradeDate !== params.date) return false;
     if (params.setup === "nolabel" && !t.noLabel) return false;
     if (params.setup && params.setup !== "nolabel" && String(t.setupId) !== params.setup)
       return false;
@@ -70,6 +73,18 @@ export default async function TradesPage({
             {filtered.length} of {all.length}
           </span>
         </div>
+
+        {params.date ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <span className={chip(true)}>{fmtDate(params.date)}</span>
+            <Link
+              href={link({ date: undefined })}
+              className="text-sm text-accent hover:underline"
+            >
+              Show All Days
+            </Link>
+          </div>
+        ) : null}
 
         <div className="flex flex-wrap items-center gap-2">
         <Link href={link({ setup: undefined })} className={chip(!params.setup)}>

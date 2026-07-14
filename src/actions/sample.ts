@@ -96,10 +96,15 @@ export async function loadSampleData() {
           ? pick(["A", "A", "B", "B", "C"] as const)
           : pick(["A", "B", "B", "C", "D"] as const);
 
+      // Entry times skew toward the open, where most orderflow edge lives.
+      const hour = rnd() < 0.5 ? 9 : rnd() < 0.6 ? 10 : rnd() < 0.5 ? 11 : 13 + Math.floor(rnd() * 2);
+      const minute = hour === 9 ? 30 + Math.floor(rnd() * 30) : Math.floor(rnd() * 60);
+
       tradeRows.push({
         userId,
         isSample: true,
         tradeDate: iso(day),
+        entryTime: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
         instrument: pick(["ES", "MES", "NQ"] as const),
         direction,
         contracts,

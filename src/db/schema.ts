@@ -35,6 +35,7 @@ export const trades = pgTable("trades", {
   userId: integer("user_id").references(() => users.id),
   isSample: boolean("is_sample").notNull().default(false),
   tradeDate: date("trade_date").notNull(),
+  entryTime: text("entry_time"), // "HH:MM" 24h, drives time-of-day stats
   instrument: text("instrument").notNull(),
   direction: text("direction").notNull(), // long | short
   contracts: integer("contracts"),

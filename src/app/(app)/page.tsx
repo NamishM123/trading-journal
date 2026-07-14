@@ -7,12 +7,13 @@ import { loadSampleData, clearSampleData } from "@/actions/sample";
 import { QuoteCard } from "@/components/QuoteCard";
 import { TradeRow } from "@/components/TradeRow";
 import { EquityCurve } from "@/components/EquityCurve";
-import { CalendarHeatmap } from "@/components/CalendarHeatmap";
+import { MonthCalendar } from "@/components/MonthCalendar";
 import { fmtMoney, fmtPct, fmtR } from "@/lib/format";
 import { requireUserId } from "@/lib/session";
 import {
   avgGrade,
   dailyPnl,
+  disciplineScore,
   equitySeries,
   monkeyRate,
   ruleStreak,
@@ -23,7 +24,15 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cal?: string }>;
+}) {
+  const { cal } = await searchParams;
+  const thisMonth = new Date().toISOString().slice(0, 7);
+  const month = cal && /^\d{4}-(0[1-9]|1[0-2])$/.test(cal) ? cal : thisMonth;
+
   const userId = await requireUserId();
   const db = await getDb();
   const all = await db.query.trades.findMany({
@@ -76,14 +85,16 @@ export default async function DashboardPage() {
         </Card>
       ) : (
         <>
+          <DisciplineCard trades={all} />
+
           <div className="grid gap-5 lg:grid-cols-5">
             <Card className="lg:col-span-3">
               <SectionTitle>Equity Curve</SectionTitle>
               <EquityCurve points={equitySeries(all)} />
             </Card>
             <Card className="lg:col-span-2">
-              <SectionTitle>Daily PnL</SectionTitle>
-              <CalendarHeatmap daily={dailyPnl(all)} />
+              <SectionTitle hint="Tap a day to see its trades.">Calendar</SectionTitle>
+              <MonthCalendar daily={dailyPnl(all)} month={month} />
             </Card>
           </div>
 
@@ -111,5 +122,50 @@ export default async function DashboardPage() {
         </>
       )}
     </div>
+  );
+}
+
+function DisciplineCard({ trades: all }: { trades: Parameters<typeof disciplineScore>[0] }) {
+  const { score, band, components } = disciplineScore(all);
+  if (score == null) return null;
+
+  const tone =
+    score >= 85 ? "text-up" : score >= 70 ? "text-ink" : score >= 50 ? "text-warn" : "text-down";
+  const barColor = (v: number) =>
+    v >= 0.85 ? "var(--chart-up)" : v >= 0.6 ? "var(--warn)" : "var(--chart-down)";
+
+  return (
+    <Card>
+      <SectionTitle hint="Graded on process, not PnL. Rules, location, labels, risk, execution, and management.">
+        Discipline Score
+      </SectionTitle>
+      <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
+        <div className="text-center sm:pr-8 sm:text-left">
+          <p className={`font-mono text-6xl font-bold tabular-nums ${tone}`}>{score}</p>
+          <p className="mt-1 text-base font-semibold text-muted">{band}</p>
+        </div>
+        <div className="space-y-3">
+          {components.map((c) =>
+            c.value == null ? null : (
+              <div key={c.label} className="flex items-center gap-3">
+                <span className="w-40 shrink-0 text-sm text-muted">{c.label}</span>
+                <div className="h-4 flex-1 overflow-hidden rounded-full bg-surface-2">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.round(c.value * 100)}%`,
+                      backgroundColor: barColor(c.value),
+                    }}
+                  />
+                </div>
+                <span className="w-12 shrink-0 text-right text-sm tabular-nums text-muted">
+                  {Math.round(c.value * 100)}%
+                </span>
+              </div>
+            )
+          )}
+        </div>
+      </div>
+    </Card>
   );
 }

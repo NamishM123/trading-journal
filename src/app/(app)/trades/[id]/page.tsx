@@ -28,6 +28,7 @@ export default async function TradeDetailPage({
   if (!trade) notFound();
 
   const detail: [string, string | number | null][] = [
+    ["Entry Time", trade.entryTime],
     ["Contracts", trade.contracts],
     ["Entry", trade.entryPrice],
     ["Exit", trade.exitPrice],

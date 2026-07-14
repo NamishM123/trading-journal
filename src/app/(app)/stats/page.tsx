@@ -5,7 +5,16 @@ import { setups, trades } from "@/db/schema";
 import { Badge, Card, EmptyState, SectionTitle } from "@/components/ui";
 import { PnlText } from "@/components/badges";
 import { fmtDateShort, fmtMoney, fmtPct, fmtR } from "@/lib/format";
-import { statsForTrades, violations } from "@/lib/stats";
+import {
+  avgWinLoss,
+  maxDrawdown,
+  profitFactor,
+  sessionBucket,
+  SESSION_BUCKETS,
+  statsForTrades,
+  violations,
+  weekdayOf,
+} from "@/lib/stats";
 import { requireUserId } from "@/lib/session";
 import {
   EDGE_TYPES,
@@ -89,11 +98,92 @@ export default async function StatsPage() {
     }))
     .filter((r) => r.trades.length > 0);
 
+  const pf = profitFactor(all);
+  const dd = maxDrawdown(all);
+  const { avgWin, avgLoss } = avgWinLoss(all);
+  const overall = statsForTrades(all);
+
+  const byWeekday = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    .map((d) => ({ day: d, trades: all.filter((t) => weekdayOf(t.tradeDate) === d) }))
+    .filter((r) => r.trades.length > 0);
+
+  const bySession = SESSION_BUCKETS.map((b) => ({
+    bucket: b as string,
+    trades: all.filter((t) => sessionBucket(t.entryTime) === b),
+  })).filter((r) => r.trades.length > 0);
+
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <Card>
         <h1 className="text-2xl font-semibold tracking-tight">Stats</h1>
       </Card>
+
+      <Card>
+        <SectionTitle hint="The numbers a prop firm would look at first.">
+          Performance
+        </SectionTitle>
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
+          <PerfStat
+            label="Profit Factor"
+            value={pf == null ? "-" : pf === Infinity ? "∞" : pf.toFixed(2)}
+          />
+          <PerfStat label="Max Drawdown" value={fmtMoney(-dd)} tone={dd > 0 ? "down" : undefined} />
+          <PerfStat
+            label="Avg Win"
+            value={avgWin != null ? fmtMoney(avgWin) : "-"}
+            tone={avgWin != null ? "up" : undefined}
+          />
+          <PerfStat
+            label="Avg Loss"
+            value={avgLoss != null ? fmtMoney(avgLoss) : "-"}
+            tone={avgLoss != null ? "down" : undefined}
+          />
+          <PerfStat
+            label="Expectancy Per Trade"
+            value={overall.expectancy != null ? fmtMoney(overall.expectancy) : "-"}
+          />
+        </div>
+      </Card>
+
+      {byWeekday.length > 0 ? (
+        <Card>
+          <SectionTitle hint="Which days actually pay you and which days pay the market.">
+            Day Of Week
+          </SectionTitle>
+          <div className="space-y-2">
+            {byWeekday.map(({ day, trades: dts }) => (
+              <div key={day} className="flex items-center gap-3 text-sm">
+                <span className="w-28">{day}</span>
+                <span className="w-16 text-muted">{dts.length} trade{dts.length === 1 ? "" : "s"}</span>
+                <span className="w-14 text-right tabular-nums text-muted">
+                  {fmtPct(statsForTrades(dts).winRate)}
+                </span>
+                <PnlText value={statsForTrades(dts).pnl} className="flex-1 text-right" />
+              </div>
+            ))}
+          </div>
+        </Card>
+      ) : null}
+
+      {bySession.length > 0 ? (
+        <Card>
+          <SectionTitle hint="Entry time buckets. Open Drive is the first hour, Late Morning runs to noon, Midday to 2 pm.">
+            Time Of Day
+          </SectionTitle>
+          <div className="space-y-2">
+            {bySession.map(({ bucket, trades: bts }) => (
+              <div key={bucket} className="flex items-center gap-3 text-sm">
+                <span className="w-28">{bucket}</span>
+                <span className="w-16 text-muted">{bts.length} trade{bts.length === 1 ? "" : "s"}</span>
+                <span className="w-14 text-right tabular-nums text-muted">
+                  {fmtPct(statsForTrades(bts).winRate)}
+                </span>
+                <PnlText value={statsForTrades(bts).pnl} className="flex-1 text-right" />
+              </div>
+            ))}
+          </div>
+        </Card>
+      ) : null}
 
       <Card>
         <SectionTitle hint="Your edge, setup by setup. This is the distribution Douglas says to trust.">
@@ -330,6 +420,29 @@ export default async function StatsPage() {
           </div>
         </Card>
       ) : null}
+    </div>
+  );
+}
+
+function PerfStat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: "up" | "down";
+}) {
+  return (
+    <div>
+      <dt className="text-sm text-muted">{label}</dt>
+      <dd
+        className={`mt-1 font-mono text-xl font-bold tabular-nums ${
+          tone === "up" ? "text-up" : tone === "down" ? "text-down" : "text-ink"
+        }`}
+      >
+        {value}
+      </dd>
     </div>
   );
 }

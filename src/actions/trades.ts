@@ -79,6 +79,7 @@ export async function saveTrade(formData: FormData): Promise<TradeActionResult> 
   const values = {
     userId,
     tradeDate,
+    entryTime: str(formData, "entryTime") || null,
     instrument,
     direction,
     contracts: num(formData, "contracts"),
