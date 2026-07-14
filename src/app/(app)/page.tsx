@@ -93,7 +93,7 @@ export default async function DashboardPage({
               <EquityCurve points={equitySeries(all)} />
             </Card>
             <Card className="lg:col-span-2">
-              <SectionTitle hint="Tap a day to see its trades.">Calendar</SectionTitle>
+              <SectionTitle>Calendar</SectionTitle>
               <MonthCalendar daily={dailyPnl(all)} month={month} />
             </Card>
           </div>
@@ -136,7 +136,7 @@ function DisciplineCard({ trades: all }: { trades: Parameters<typeof disciplineS
 
   return (
     <Card>
-      <SectionTitle hint="Graded on process, not PnL. Rules, location, labels, risk, execution, and management.">
+      <SectionTitle>
         Discipline Score
       </SectionTitle>
       <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">

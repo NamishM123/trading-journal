@@ -34,10 +34,6 @@ export default async function JournalPage({
     <div className="mx-auto max-w-3xl space-y-5">
       <Card>
         <h1 className="text-2xl font-semibold tracking-tight">Daily Journal</h1>
-        <p className="mt-1 text-sm text-muted">
-          The mindset check-in. Plan before the open and review after the close. The
-          consistency you seek is in your mind.
-        </p>
       </Card>
 
       <Card>

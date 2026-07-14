@@ -138,7 +138,7 @@ export default async function TradesPage({
       </Card>
 
       {filtered.length === 0 ? (
-        <EmptyState title="No trades match." hint="Loosen the filters or log a new recap." />
+        <EmptyState title="No trades match." />
       ) : (
         <div className="space-y-2">
           {filtered.map((t) => (

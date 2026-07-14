@@ -33,11 +33,6 @@ export default async function PlaybookPage() {
     <div className="mx-auto max-w-3xl space-y-5">
       <Card>
         <h1 className="text-2xl font-semibold tracking-tight">Playbook</h1>
-        <p className="mt-1 text-sm text-muted">
-          If you can&apos;t assign a trade one of these labels, you don&apos;t take it. Douglas&apos;s
-          consistency exercise is to execute one setup {SAMPLE_SIZE_TARGET} times, graded only
-          on process.
-        </p>
       </Card>
 
       {active.map((s) => {

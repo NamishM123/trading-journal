@@ -25,3 +25,4 @@ These rules apply to every piece of user visible text in the app. UI copy, title
 10. No native `details` markers. Summary toggles hide the triangle with `list-none [&::-webkit-details-marker]:hidden`.
 11. The header is two rows on phones. Brand plus the New Recap button on top, nav links with Log Out below. One row on desktop.
 12. The page must never scroll horizontally. `html, body` use `overflow-x: clip`, cards use `overflow: hidden`, and wide content scrolls inside its own `overflow-x-auto` wrapper.
+13. Titles stand alone. No hint text, descriptions, or subheadings under any title or heading. `SectionTitle` has no hint prop.

@@ -126,7 +126,7 @@ export function TradeForm({
 
       {/* Evidence comes first. Upload your screenshots before anything else. */}
       <Card>
-        <SectionTitle hint="Drop in your delta chart, footprint, or DOM and tag each one. Paste the YouTube link once your recap video is up.">
+        <SectionTitle>
           Evidence
         </SectionTitle>
 
@@ -225,7 +225,7 @@ export function TradeForm({
 
       {/* The Label Rule */}
       <Card>
-        <SectionTitle hint="Someone is sitting next to you asking you to justify this trade. Name the exact setup from your playbook.">
+        <SectionTitle>
           The Label
         </SectionTitle>
         <Field label="Setup">
@@ -251,7 +251,7 @@ export function TradeForm({
 
       {/* Taper or monkey */}
       <Card>
-        <SectionTitle hint="Did you trade at a taper, the edge or the excess, or were you a monkey trading in the middle of balance?">
+        <SectionTitle>
           Taper Or Monkey?
         </SectionTitle>
         <Field label="Where was your entry?">
@@ -342,7 +342,7 @@ export function TradeForm({
 
       {/* Trading in the Zone */}
       <Card>
-        <SectionTitle hint="Grade the process, not the outcome. A perfectly executed loser is an A. A winning monkey trade is not.">
+        <SectionTitle>
           Mind, Trading In The Zone
         </SectionTitle>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -386,7 +386,7 @@ export function TradeForm({
 
       {/* Execution timing */}
       <Card>
-        <SectionTitle hint="Did you enter too early, on time, too late, or chase it?">
+        <SectionTitle>
           Execution Timing
         </SectionTitle>
         <Field label="Timing Of Entry">
@@ -403,7 +403,7 @@ export function TradeForm({
 
       {/* Risk acceptance after entry */}
       <Card>
-        <SectionTitle hint="What happened to your stop and risk management after you entered?">
+        <SectionTitle>
           Risk Management After Entry
         </SectionTitle>
         <Field label="After entry, what happened to your stop?">
@@ -420,7 +420,7 @@ export function TradeForm({
 
       {/* Management mistakes */}
       <Card>
-        <SectionTitle hint="What management mistakes did you make during this trade?">
+        <SectionTitle>
           Management Mistakes
         </SectionTitle>
         <Field label="What went wrong with management?">
@@ -437,7 +437,7 @@ export function TradeForm({
 
       {/* Edge vs prediction */}
       <Card>
-        <SectionTitle hint="Was this trade based on an edge you identified, or a prediction/impulse/revenge?">
+        <SectionTitle>
           Trade Source
         </SectionTitle>
         <Field label="What type of trade was this?">

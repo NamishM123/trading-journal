@@ -49,7 +49,7 @@ export default async function StatsPage() {
         <Card className="mb-5">
           <h1 className="text-2xl font-semibold tracking-tight">Stats</h1>
         </Card>
-        <EmptyState title="No data yet." hint="Stats appear once you log recaps." />
+        <EmptyState title="No data yet." />
       </div>
     );
   }
@@ -119,7 +119,7 @@ export default async function StatsPage() {
       </Card>
 
       <Card>
-        <SectionTitle hint="The numbers a prop firm would look at first.">
+        <SectionTitle>
           Performance
         </SectionTitle>
         <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
@@ -147,7 +147,7 @@ export default async function StatsPage() {
 
       {byWeekday.length > 0 ? (
         <Card>
-          <SectionTitle hint="Which days actually pay you and which days pay the market.">
+          <SectionTitle>
             Day Of Week
           </SectionTitle>
           <div className="space-y-2">
@@ -167,7 +167,7 @@ export default async function StatsPage() {
 
       {bySession.length > 0 ? (
         <Card>
-          <SectionTitle hint="Entry time buckets. Open Drive is the first hour, Late Morning runs to noon, Midday to 2 pm.">
+          <SectionTitle>
             Time Of Day
           </SectionTitle>
           <div className="space-y-2">
@@ -186,7 +186,7 @@ export default async function StatsPage() {
       ) : null}
 
       <Card>
-        <SectionTitle hint="Your edge, setup by setup. This is the distribution Douglas says to trust.">
+        <SectionTitle>
           Edge By Setup
         </SectionTitle>
         <div className="overflow-x-auto">
@@ -240,7 +240,7 @@ export default async function StatsPage() {
       </Card>
 
       <Card>
-        <SectionTitle hint="What trading inside balance actually costs you.">
+        <SectionTitle>
           Taper Vs Monkey
         </SectionTitle>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -272,7 +272,7 @@ export default async function StatsPage() {
       </Card>
 
       <Card>
-        <SectionTitle hint="If A-trades make money and F-trades lose it, the problem was never the market.">
+        <SectionTitle>
           Process Vs Outcome
         </SectionTitle>
         <div className="space-y-2">
@@ -298,7 +298,7 @@ export default async function StatsPage() {
 
       {byEmotion.length > 0 ? (
         <Card>
-          <SectionTitle hint="Emotion before entry vs how those trades went.">
+          <SectionTitle>
             Emotion At Entry
           </SectionTitle>
           <div className="space-y-2">
@@ -318,7 +318,7 @@ export default async function StatsPage() {
 
       {byEdgeType.length > 0 ? (
         <Card>
-          <SectionTitle hint="Douglas says an edge is a higher probability, not a prediction. Where does your money actually come from?">
+          <SectionTitle>
             Edge Or Prediction?
           </SectionTitle>
           <div className="space-y-2">
@@ -338,7 +338,7 @@ export default async function StatsPage() {
 
       {byRiskAcceptance.length > 0 ? (
         <Card>
-          <SectionTitle hint="When you accept risk, your decisions improve. When you resist it, you sabotage. Here's the proof.">
+          <SectionTitle>
             Risk Acceptance Vs PnL
           </SectionTitle>
           <div className="space-y-2">
@@ -358,7 +358,7 @@ export default async function StatsPage() {
 
       {byTiming.length > 0 ? (
         <Card>
-          <SectionTitle hint="For DOM trading, most damage comes from being early, late, or chasing.">
+          <SectionTitle>
             Execution Timing Vs PnL
           </SectionTitle>
           <div className="space-y-2">
@@ -378,7 +378,7 @@ export default async function StatsPage() {
 
       {byMistake.length > 0 ? (
         <Card>
-          <SectionTitle hint="What each management mistake has cost you.">
+          <SectionTitle>
             Management Mistakes Vs PnL
           </SectionTitle>
           <div className="space-y-2">
@@ -398,7 +398,7 @@ export default async function StatsPage() {
 
       {viols.length > 0 ? (
         <Card>
-          <SectionTitle hint="Unlabeled trades and broken rules. Read these before your next session.">
+          <SectionTitle>
             Violation Log
           </SectionTitle>
           <div className="space-y-2">

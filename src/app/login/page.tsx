@@ -16,14 +16,9 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-sm">
-        <h1 className="whitespace-nowrap text-2xl font-semibold tracking-tight">
+        <h1 className="mb-6 whitespace-nowrap text-2xl font-semibold tracking-tight">
           Don&apos;t Be A Monkey
         </h1>
-        <p className="mb-6 mt-1 text-sm text-muted">
-          {mode === "login"
-            ? "Log in to your journal."
-            : "Create your own journal account."}
-        </p>
 
         <form action={mode === "login" ? loginAction : signupAction} className="space-y-4">
           <Field label="Username">

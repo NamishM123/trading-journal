@@ -32,18 +32,9 @@ export function Card({
   );
 }
 
-export function SectionTitle({
-  children,
-  hint,
-}: {
-  children: ReactNode;
-  hint?: string;
-}) {
+export function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-4">
-      <h2 className="text-xl font-semibold tracking-tight text-ink">{children}</h2>
-      {hint ? <p className="mt-1 text-sm text-muted">{hint}</p> : null}
-    </div>
+    <h2 className="mb-4 text-xl font-semibold tracking-tight text-ink">{children}</h2>
   );
 }
 
