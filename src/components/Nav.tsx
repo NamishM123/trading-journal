@@ -6,8 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { cx } from "./ui";
 import { logout } from "@/actions/auth";
 
+// The brand itself is the home button, so there is no Home link.
 const LINKS = [
-  { href: "/", label: "Home" },
   { href: "/trades", label: "Trades" },
   { href: "/playbook", label: "Playbook" },
   { href: "/journal", label: "Journal" },
@@ -20,8 +20,7 @@ export function Nav() {
   const [showLogout, setShowLogout] = useState(false);
   const lastTap = useRef(0);
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isActive = (href: string) => pathname.startsWith(href);
 
   const linkClass = (active: boolean) =>
     cx(
