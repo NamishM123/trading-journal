@@ -56,7 +56,7 @@ export function Button({ variant = "primary", className, ...props }: ButtonProps
     primary:
       "bg-accent text-accent-fg hover:bg-accent-hover border border-transparent shadow-[var(--glow)]",
     secondary:
-      "bg-surface-2 text-ink border border-line-strong hover:bg-[rgba(148,190,255,0.1)] backdrop-blur",
+      "bg-[rgba(148,190,255,0.12)] text-ink border border-line-strong hover:bg-[rgba(148,190,255,0.2)] backdrop-blur",
     ghost: "bg-transparent text-muted hover:text-ink hover:bg-surface-2 border border-transparent",
     danger:
       "bg-down-soft text-down border border-[rgba(255,93,104,0.3)] hover:bg-[rgba(255,93,104,0.2)]",
@@ -152,12 +152,13 @@ export function Badge({
   return (
     <span
       className={cx(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold",
+        // max-w-full + inner truncate keeps long setup names on one line.
+        "inline-flex max-w-full items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold",
         styles,
         className
       )}
     >
-      {children}
+      <span className="truncate">{children}</span>
     </span>
   );
 }

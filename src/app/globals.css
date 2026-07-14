@@ -7,10 +7,10 @@
 :root.light,
 :root.dark {
   --bg: #070b12;
-  --surface: rgba(15, 22, 34, 0.72);
+  --surface: rgba(17, 25, 43, 0.82);
   --surface-solid: #0f1622;
   --surface-2: rgba(148, 190, 255, 0.06);
-  --border: rgba(148, 190, 255, 0.11);
+  --border: rgba(148, 190, 255, 0.16);
   --border-strong: rgba(148, 190, 255, 0.25);
   --text: #e8eefa;
   --muted: #94a2ba;
@@ -61,6 +61,12 @@
 
 html {
   color-scheme: dark;
+}
+
+/* Nothing may widen the page. Wide content scrolls inside its own container instead. */
+html,
+body {
+  overflow-x: clip;
 }
 
 body {

@@ -49,6 +49,12 @@ export async function loadSampleData() {
   const userId = await requireUserId();
   const db = await getDb();
 
+  // Idempotent. Double taps and reloads replace the sample set instead of duplicating it.
+  await db.delete(trades).where(and(eq(trades.userId, userId), eq(trades.isSample, true)));
+  await db
+    .delete(journalEntries)
+    .where(and(eq(journalEntries.userId, userId), eq(journalEntries.isSample, true)));
+
   const mySetups = await db
     .select()
     .from(setups)

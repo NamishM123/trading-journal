@@ -68,7 +68,7 @@ export default async function TradeDetailPage({
           <PnlText value={trade.pnl} className="mr-2 text-xl" />
           <Link
             href={`/trades/${trade.id}/edit`}
-            className="rounded-xl border border-line-strong bg-surface px-4 py-2 text-sm font-medium hover:bg-surface-2"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-line-strong bg-surface-2 px-5 py-2.5 text-base font-semibold text-ink transition-colors hover:bg-[rgba(148,190,255,0.14)]"
           >
             Edit
           </Link>

@@ -20,4 +20,8 @@ These rules apply to every piece of user visible text in the app. UI copy, title
 5. Every button is the same size. Pill shape, `px-5 py-2.5 text-base font-semibold rounded-full`, via the shared `Button` component in `src/components/ui.tsx`. Links styled as buttons match it exactly.
 6. All circular icon buttons are the same size, `h-9 w-9`.
 7. Everything on a page lives inside the standard `Card` container from `src/components/ui.tsx`. No one-off container styles.
-8. Content inside a container must never overlap or collide. When space runs out, stack vertically and skip a line instead. Form grids collapse to one column on phones.
+8. Content inside a container must never overlap or collide. When space runs out, stack vertically and skip a line instead. Form grids collapse to one column on phones. Badges truncate long text on one line instead of wrapping into tall bubbles.
+9. Progress bars are thick, `h-4`, with rounded ends.
+10. No native `details` markers. Summary toggles hide the triangle with `list-none [&::-webkit-details-marker]:hidden`.
+11. The header is two rows on phones. Brand plus the New Recap button on top, nav links with Log Out below. One row on desktop.
+12. The page must never scroll horizontally. `html, body` use `overflow-x: clip`, cards use `overflow: hidden`, and wide content scrolls inside its own `overflow-x-auto` wrapper.

@@ -73,14 +73,14 @@ export default async function PlaybookPage() {
             </dl>
 
             <div className="mt-4">
-              <div className="mb-1 flex items-center justify-between text-xs text-muted">
+              <div className="mb-1.5 flex items-center justify-between text-sm text-muted">
                 <span>{SAMPLE_SIZE_TARGET} Trade Sample</span>
                 <span>
                   {sample}/{SAMPLE_SIZE_TARGET}
                   {st.avgGrade ? ` · avg execution ${st.avgGrade}` : ""}
                 </span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-surface-2">
+              <div className="h-4 overflow-hidden rounded-full bg-surface-2">
                 <div
                   className="h-full rounded-full bg-accent"
                   style={{ width: `${(sample / SAMPLE_SIZE_TARGET) * 100}%` }}
@@ -89,14 +89,16 @@ export default async function PlaybookPage() {
             </div>
 
             <details className="mt-4">
-              <summary className="cursor-pointer text-sm text-accent">Edit Setup</summary>
+              <summary className="cursor-pointer list-none text-base font-medium text-accent hover:underline [&::-webkit-details-marker]:hidden">
+                Edit Setup
+              </summary>
               <form action={updateSetup} className="mt-3 space-y-3">
                 <input type="hidden" name="id" value={s.id} />
                 <Field label="Name">
                   <Input name="name" defaultValue={s.name} required />
                 </Field>
                 <Field label="Description">
-                  <Textarea name="description" rows={2} defaultValue={s.description} />
+                  <Textarea name="description" rows={3} defaultValue={s.description} />
                 </Field>
                 <Field label="Entry Rules And Criteria">
                   <Textarea
@@ -112,12 +114,12 @@ export default async function PlaybookPage() {
                   </Button>
                 </div>
               </form>
-              <form action={toggleSetupActive} className="mt-2">
+              <form action={toggleSetupActive} className="mt-3">
                 <input type="hidden" name="id" value={s.id} />
                 <input type="hidden" name="active" value="false" />
-                <button type="submit" className="text-sm text-muted hover:text-down">
+                <Button type="submit" variant="danger">
                   Archive Setup
-                </button>
+                </Button>
               </form>
             </details>
           </Card>
@@ -131,7 +133,7 @@ export default async function PlaybookPage() {
             <Input name="name" placeholder="e.g. Failed breakout reclaim" required />
           </Field>
           <Field label="Description">
-            <Textarea name="description" rows={2} />
+            <Textarea name="description" rows={3} />
           </Field>
           <Field label="Entry Rules And Criteria">
             <Textarea name="rules" rows={3} />

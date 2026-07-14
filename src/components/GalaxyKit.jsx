@@ -218,13 +218,14 @@ function injectStyles() {
     .glow-card {
       position: relative;
       isolation: isolate;
-      background-color: rgba(15, 23, 42, 0.55);
+      overflow: hidden;
+      background-color: rgba(17, 25, 43, 0.82);
       backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(148, 190, 255, 0.16);
       transition: border-color 0.25s ease;
     }
     .glow-card:hover {
-      border-color: rgba(255, 255, 255, 0.18);
+      border-color: rgba(148, 190, 255, 0.28);
     }
     .glow-card::before,
     .glow-card::after {

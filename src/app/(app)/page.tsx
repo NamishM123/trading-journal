@@ -87,19 +87,19 @@ export default async function DashboardPage() {
             </Card>
           </div>
 
-          <div>
-            <div className="mb-3 flex items-center justify-between">
+          <Card>
+            <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-semibold tracking-tight">Recent Trades</h2>
-              <Link href="/trades" className="text-sm text-accent hover:underline">
+              <Link href="/trades" className="text-base text-accent hover:underline">
                 View All
               </Link>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {all.slice(0, 6).map((t) => (
                 <TradeRow key={t.id} trade={t} />
               ))}
             </div>
-          </div>
+          </Card>
 
           {all.some((t) => t.isSample) ? (
             <form action={clearSampleData} className="flex justify-center pb-2">

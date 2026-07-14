@@ -190,7 +190,7 @@ export default async function StatsPage() {
             <div key={grade} className="flex items-center gap-3 text-sm">
               <span className="w-8 font-semibold">{grade}</span>
               <span className="w-16 text-muted">{gts.length} trade{gts.length === 1 ? "" : "s"}</span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-2">
+              <div className="h-4 flex-1 overflow-hidden rounded-full bg-surface-2">
                 <div
                   className="h-full rounded-full"
                   style={{
@@ -316,15 +316,15 @@ export default async function StatsPage() {
               <Link
                 key={t.id}
                 href={`/trades/${t.id}`}
-                className="flex items-center gap-3 rounded-xl border border-line px-3.5 py-2.5 text-sm hover:bg-surface-2"
+                className="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-line px-3.5 py-2.5 text-sm hover:bg-surface-2"
               >
-                <span className="w-14 text-xs text-muted">{fmtDateShort(t.tradeDate)}</span>
+                <span className="w-14 text-sm text-muted">{fmtDateShort(t.tradeDate)}</span>
                 <span className="w-12 font-medium">{t.instrument}</span>
-                <span className="flex-1">
-                  {t.noLabel ? <Badge tone="warn">No label</Badge> : null}{" "}
-                  {t.followedRules === false ? <Badge tone="down">Broke rules</Badge> : null}
+                <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                  {t.noLabel ? <Badge tone="warn">No Label</Badge> : null}
+                  {t.followedRules === false ? <Badge tone="down">Broke Rules</Badge> : null}
                 </span>
-                <PnlText value={t.pnl} />
+                <PnlText value={t.pnl} className="ml-auto" />
               </Link>
             ))}
           </div>

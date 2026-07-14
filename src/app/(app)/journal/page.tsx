@@ -121,11 +121,11 @@ export default async function JournalPage({
                     </div>
                   ) : null
                 )}
-                <form action={deleteJournalEntry}>
+                <form action={deleteJournalEntry} className="pt-1">
                   <input type="hidden" name="id" value={e.id} />
-                  <button type="submit" className="text-xs text-muted hover:text-down">
+                  <Button type="submit" variant="danger">
                     Delete Entry
-                  </button>
+                  </Button>
                 </form>
               </div>
             </details>
