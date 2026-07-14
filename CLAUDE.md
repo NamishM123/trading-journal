@@ -27,7 +27,7 @@ These rules apply to every piece of user visible text in the app. UI copy, title
 12. The page must never scroll horizontally. `html, body` use `overflow-x: clip`, cards use `overflow: hidden`, and wide content scrolls inside its own `overflow-x-auto` wrapper.
 13. Titles stand alone. No hint text, descriptions, or subheadings under any title or heading. `SectionTitle` has no hint prop.
 14. No page header cards that only repeat the page name. The nav already shows where you are.
-15. Every title is `text-2xl`. Body text is `text-base` minimum. Tiny text is only for axis labels and calendar day numbers.
+15. Exactly three font sizes exist. `text-2xl` for every title, heading, and hero number. `text-base` for all body text, buttons, chips, badges, inputs, and labels. `text-sm` for meta text like dates, captions, and calendar cells. Never use any other size class. Weight and color create hierarchy, not new sizes.
 16. Filter chips and count badges share one pill size, `px-4 py-2 text-base`.
 17. Day grades read "A Day", "B Day", "C Day", never "Day A".
 18. On phones the header has no visible Log Out. Double tapping the brand reveals it. Desktop shows the Log Out button normally.

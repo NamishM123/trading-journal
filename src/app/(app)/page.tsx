@@ -165,9 +165,9 @@ function DisciplineCard({ trades: all }: { trades: Parameters<typeof disciplineS
         Discipline Score
       </SectionTitle>
       <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
-        <div className="text-center sm:pr-8 sm:text-left">
-          <p className={`font-mono text-6xl font-bold tabular-nums ${tone}`}>{score}</p>
-          <p className="mt-1 text-lg font-semibold text-muted">{band}</p>
+        <div className="flex items-baseline justify-center gap-3 sm:flex-col sm:items-start sm:justify-start sm:gap-1 sm:pr-8">
+          <p className={`font-mono text-2xl font-bold tabular-nums ${tone}`}>{score}</p>
+          <p className="text-base font-semibold text-muted">{band}</p>
         </div>
         <div className="space-y-3">
           {components.map((c) =>

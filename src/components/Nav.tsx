@@ -50,11 +50,11 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-[rgba(7,11,18,0.85)] backdrop-blur-xl backdrop-saturate-150">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex items-center gap-5 pb-2 pt-3 sm:py-3.5">
+        <div className="flex items-center gap-3 pb-2 pt-3 sm:gap-5 sm:py-3.5">
           <button
             type="button"
             onClick={onBrandClick}
-            className="cursor-pointer select-none whitespace-nowrap text-[21px] font-bold tracking-tight text-ink sm:text-2xl"
+            className="cursor-pointer select-none whitespace-nowrap text-2xl font-bold tracking-tight text-ink"
           >
             Don&apos;t Be A Monkey
           </button>

@@ -157,7 +157,7 @@ export function Badge({
 export function EmptyState({ title, hint }: { title: string; hint?: string }) {
   return (
     <Card className="px-6 py-12 text-center">
-      <p className="text-lg font-medium text-ink">{title}</p>
+      <p className="text-base font-semibold text-ink">{title}</p>
       {hint ? <p className="mt-1 text-base text-muted">{hint}</p> : null}
     </Card>
   );

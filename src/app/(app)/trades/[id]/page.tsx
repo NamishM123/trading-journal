@@ -64,7 +64,7 @@ export default async function TradeDetailPage({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <PnlText value={trade.pnl} className="mr-2 text-xl" />
+          <PnlText value={trade.pnl} className="mr-2 text-2xl" />
           <Link
             href={`/trades/${trade.id}/edit`}
             className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-line-strong bg-surface-2 px-5 py-2.5 text-base font-semibold text-ink transition-colors hover:bg-[rgba(148,190,255,0.14)]"

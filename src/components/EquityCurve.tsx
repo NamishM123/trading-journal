@@ -86,7 +86,7 @@ export function EquityCurve({ points }: { points: Point[] }) {
             x={PAD.left - 8}
             y={py(gy) + 3.5}
             textAnchor="end"
-            fontSize="10.5"
+            fontSize="12"
             fill="var(--muted)"
           >
             {gy >= 1000 || gy <= -1000
@@ -121,7 +121,7 @@ export function EquityCurve({ points }: { points: Point[] }) {
         x={W - PAD.right}
         y={H - 6}
         textAnchor="end"
-        fontSize="10.5"
+        fontSize="12"
         fill="var(--muted)"
       >
         trade #
@@ -155,10 +155,10 @@ export function EquityCurve({ points }: { points: Point[] }) {
               fill="var(--surface)"
               stroke="var(--border)"
             />
-            <text x="10" y="13" fontSize="10" fill="var(--muted)">
+            <text x="10" y="13" fontSize="12" fill="var(--muted)">
               {h.x === 0 ? "start" : `after trade ${h.x}`}
             </text>
-            <text x="10" y="25" fontSize="11" fontWeight="600" fill="var(--text)">
+            <text x="10" y="25" fontSize="12" fontWeight="600" fill="var(--text)">
               {fmtMoney(h.y)}
             </text>
           </g>

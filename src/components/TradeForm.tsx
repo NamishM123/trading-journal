@@ -512,14 +512,14 @@ function ShotTile({
         </button>
       </div>
       <div className="space-y-1.5 p-2">
-        <Select value={chartType} onChange={(e) => onChartType(e.target.value)} className="!py-1.5 text-xs">
+        <Select value={chartType} onChange={(e) => onChartType(e.target.value)} className="!py-1.5 text-sm">
           {CHART_TYPES.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
           ))}
         </Select>
-        <Select value={evidenceTag ?? ""} onChange={(e) => onEvidenceTag(e.target.value)} className="!py-1.5 text-xs">
+        <Select value={evidenceTag ?? ""} onChange={(e) => onEvidenceTag(e.target.value)} className="!py-1.5 text-sm">
           <option value="">Evidence tag…</option>
           {EVIDENCE_TAGS.map((t) => (
             <option key={t} value={t}>
@@ -531,7 +531,7 @@ function ShotTile({
           value={caption}
           onChange={(e) => onCaption(e.target.value)}
           placeholder="Caption (optional)"
-          className="!py-1.5 text-xs"
+          className="!py-1.5 text-sm"
         />
       </div>
     </div>

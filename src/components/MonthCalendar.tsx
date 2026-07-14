@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-function fmtShort(v: number): string {
-  const sign = v > 0 ? "+" : v < 0 ? "-" : "";
+// Color already carries direction, so day cells skip the +/- sign to stay narrow.
+function fmtShort(v: number, signed = false): string {
+  const sign = signed ? (v > 0 ? "+" : v < 0 ? "-" : "") : "";
   const abs = Math.abs(v);
   if (abs >= 1000) return `${sign}$${(abs / 1000).toFixed(1)}k`;
   return `${sign}$${Math.round(abs)}`;
@@ -68,7 +69,7 @@ export function MonthCalendar({
                 monthTotal > 0 ? "text-up" : monthTotal < 0 ? "text-down" : "text-muted"
               }`}
             >
-              {fmtShort(monthTotal)}
+              {fmtShort(monthTotal, true)}
             </p>
           ) : (
             <p className="text-sm text-muted">No trades</p>
@@ -85,7 +86,7 @@ export function MonthCalendar({
 
       <div className="grid grid-cols-7 gap-1 text-center">
         {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-          <span key={i} className="pb-1 text-xs font-medium text-faint">
+          <span key={i} className="pb-1 text-sm font-medium text-faint">
             {d}
           </span>
         ))}
@@ -94,10 +95,10 @@ export function MonthCalendar({
           const v = daily.get(cell.iso);
           const inner = (
             <>
-              <span className="text-[11px] leading-none text-faint">{cell.day}</span>
+              <span className="text-sm leading-none text-faint">{cell.day}</span>
               {v != null ? (
                 <span
-                  className={`mt-0.5 font-mono text-[11px] font-bold leading-tight tabular-nums ${
+                  className={`mt-0.5 font-mono text-sm font-bold leading-tight tabular-nums ${
                     v > 0 ? "text-up" : v < 0 ? "text-down" : "text-muted"
                   }`}
                 >

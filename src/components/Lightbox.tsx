@@ -52,7 +52,7 @@ export function ScreenshotGallery({ shots }: { shots: Screenshot[] }) {
                 {s.evidenceTag ? <Badge tone="accent">{s.evidenceTag}</Badge> : null}
               </span>
               {s.caption ? (
-                <span className="truncate text-xs text-muted">{s.caption}</span>
+                <span className="truncate text-sm text-muted">{s.caption}</span>
               ) : null}
             </div>
           </button>

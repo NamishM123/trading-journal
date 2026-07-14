@@ -121,7 +121,7 @@ export default async function PlaybookPage() {
       })}
 
       <Card>
-        <h2 className="mb-3 text-lg font-semibold tracking-tight">Add A Setup</h2>
+        <h2 className="mb-3 text-2xl font-semibold tracking-tight">Add A Setup</h2>
         <form action={createSetup} className="space-y-3">
           <Field label="Name">
             <Input name="name" placeholder="e.g. Failed breakout reclaim" required />
@@ -138,7 +138,7 @@ export default async function PlaybookPage() {
 
       {archived.length > 0 ? (
         <Card>
-          <h2 className="mb-3 text-lg font-semibold tracking-tight text-muted">Archived</h2>
+          <h2 className="mb-3 text-2xl font-semibold tracking-tight text-muted">Archived</h2>
           <div className="space-y-2">
             {archived.map((s) => (
               <div key={s.id} className="flex items-center justify-between gap-3">
@@ -163,7 +163,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <dt className="text-sm text-muted">{label}</dt>
-      <dd className="mt-0.5 text-lg font-semibold tabular-nums">{value}</dd>
+      <dd className="mt-0.5 text-base font-bold tabular-nums">{value}</dd>
     </div>
   );
 }
