@@ -41,10 +41,7 @@ export function SectionTitle({
 }) {
   return (
     <div className="mb-4">
-      <h2 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-[0.14em] text-ink">
-        <span className="h-[0.45rem] w-[0.45rem] flex-shrink-0 rounded-[2px] bg-accent shadow-[0_0_8px_rgba(69,196,255,0.8)]" />
-        {children}
-      </h2>
+      <h2 className="text-xl font-semibold tracking-tight text-ink">{children}</h2>
       {hint ? <p className="mt-1 text-sm text-muted">{hint}</p> : null}
     </div>
   );
@@ -127,7 +124,7 @@ export function Field({
 }) {
   return (
     <label className={cx("block", className)}>
-      <span className="mb-1.5 block font-mono text-[0.64rem] font-medium uppercase tracking-[0.1em] text-muted">
+      <span className="mb-1.5 block text-[0.8rem] font-medium text-muted">
         {label}
       </span>
       {children}
@@ -154,7 +151,7 @@ export function Badge({
   return (
     <span
       className={cx(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-mono text-[0.64rem] font-semibold",
+        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold",
         styles,
         className
       )}

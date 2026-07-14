@@ -7,17 +7,17 @@ export const DEFAULT_SETUPS = [
   {
     name: "Trapped Buyers",
     description:
-      "Late buyers stuck above value as price rejects — their liquidation fuels the move down.",
+      "Late buyers stuck above value as price rejects. Their liquidation fuels the move down.",
   },
   {
     name: "Trapped Sellers",
     description:
-      "Late sellers stuck below value as price rejects — their covering fuels the move up.",
+      "Late sellers stuck below value as price rejects. Their covering fuels the move up.",
   },
   {
     name: "Absorption",
     description:
-      "Aggressive market orders hit the book but price refuses to move — a passive player is absorbing everything.",
+      "Aggressive market orders hit the book but price refuses to move. A passive player is absorbing everything.",
   },
   {
     name: "Large Buyer/Seller Defending Price",
@@ -57,8 +57,8 @@ export const CHART_TYPES = [
 export const INSTRUMENTS = ["ES", "MES", "NQ", "MNQ", "YM", "RTY", "CL", "GC"];
 
 export const LOCATIONS = [
-  { value: "taper", label: "Taper — traded the edge / excess" },
-  { value: "monkey", label: "Monkey — traded in balance" },
+  { value: "taper", label: "Taper, traded the edge or excess" },
+  { value: "monkey", label: "Monkey, traded in balance" },
   { value: "unsure", label: "Unsure" },
 ] as const;
 
@@ -100,10 +100,10 @@ export const MANAGEMENT_MISTAKES = [
 ] as const;
 
 export const EDGE_TYPES = [
-  { value: "edge", label: "Edge — repeatable behavior at meaningful location" },
-  { value: "prediction", label: "Prediction — thought price should go there" },
-  { value: "impulse", label: "Impulse — clicked before information" },
-  { value: "revenge", label: "Revenge — wanted money back" },
+  { value: "edge", label: "Edge, repeatable behavior at a meaningful location" },
+  { value: "prediction", label: "Prediction, thought price should go there" },
+  { value: "impulse", label: "Impulse, clicked before information" },
+  { value: "revenge", label: "Revenge, wanted money back" },
 ] as const;
 
 export const EVIDENCE_TAGS = [
@@ -119,7 +119,7 @@ export const EVIDENCE_TAGS = [
   "Mistake evidence",
 ] as const;
 
-// Mark Douglas — Trading in the Zone
+// Mark Douglas, Trading in the Zone
 export const FIVE_TRUTHS = [
   "Anything can happen.",
   "You don't need to know what is going to happen next in order to make money.",
@@ -131,7 +131,7 @@ export const FIVE_TRUTHS = [
 export const DOUGLAS_QUOTES = [
   ...FIVE_TRUTHS,
   "The consistency you seek is in your mind, not in the markets.",
-  "Trading is a probability game. You don't have to be right on this trade — you have to execute your edge.",
+  "Trading is a probability game. You don't have to be right on this trade. You have to execute your edge.",
   "When you really believe that trading is simply a probability game, concepts like right and wrong or win and lose no longer have the same significance.",
   "I predefine my risk, and I completely accept it before I put on a trade.",
 ];

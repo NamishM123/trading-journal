@@ -24,9 +24,9 @@ export default async function JournalPage({
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <div>
-        <h1 className="text-lg font-semibold">Daily Journal</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Daily Journal</h1>
         <p className="mt-1 text-sm text-muted">
-          The mindset check-in. Plan before the open, review after the close — the
+          The mindset check-in. Plan before the open and review after the close. The
           consistency you seek is in your mind.
         </p>
       </div>
@@ -37,9 +37,9 @@ export default async function JournalPage({
             <Field label="Date">
               <Input type="date" name="entryDate" defaultValue={editDate} required />
             </Field>
-            <Field label="Day grade (process, not PnL)">
+            <Field label="Day Grade (Process, Not PnL)">
               <Select name="dayGrade" defaultValue={current?.dayGrade ?? ""}>
-                <option value="">—</option>
+                <option value="">-</option>
                 {GRADES.map((g) => (
                   <option key={g} value={g}>
                     {g}
@@ -48,14 +48,14 @@ export default async function JournalPage({
               </Select>
             </Field>
           </div>
-          <Field label="Pre-market plan">
+          <Field label="Pre-Market Plan">
             <Textarea
               name="premarketPlan"
               placeholder="Key levels, overnight context, which setups you're hunting…"
               defaultValue={current?.premarketPlan ?? ""}
             />
           </Field>
-          <Field label="Market context">
+          <Field label="Market Context">
             <Textarea
               name="marketContext"
               rows={2}
@@ -63,7 +63,7 @@ export default async function JournalPage({
               defaultValue={current?.marketContext ?? ""}
             />
           </Field>
-          <Field label="Mindset check-in">
+          <Field label="Mindset Check-In">
             <Textarea
               name="mindset"
               rows={2}
@@ -71,14 +71,14 @@ export default async function JournalPage({
               defaultValue={current?.mindset ?? ""}
             />
           </Field>
-          <Field label="Post-market review">
+          <Field label="Post-Market Review">
             <Textarea
               name="review"
               placeholder="Did you trade your plan? What did today's sample teach you?"
               defaultValue={current?.review ?? ""}
             />
           </Field>
-          <Button type="submit">{current ? "Update entry" : "Save entry"}</Button>
+          <Button type="submit">{current ? "Update Entry" : "Save Entry"}</Button>
         </form>
       </Card>
 
@@ -115,7 +115,7 @@ export default async function JournalPage({
                 <form action={deleteJournalEntry}>
                   <input type="hidden" name="id" value={e.id} />
                   <button type="submit" className="text-xs text-muted hover:text-down">
-                    Delete entry
+                    Delete Entry
                   </button>
                 </form>
               </div>

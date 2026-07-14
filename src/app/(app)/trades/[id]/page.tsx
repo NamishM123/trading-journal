@@ -31,22 +31,22 @@ export default async function TradeDetailPage({
     ["Exit", trade.exitPrice],
     ["Stop", trade.stopPrice],
     ["Target", trade.targetPrice],
-    ["PnL (points)", trade.pnlPoints],
+    ["PnL (Points)", trade.pnlPoints],
     ["Planned R", trade.plannedR != null ? fmtR(trade.plannedR) : null],
     ["Realized R", trade.realizedR != null ? fmtR(trade.realizedR) : null],
   ];
 
   const mind: [string, string | null][] = [
-    ["Emotion before", trade.emotionBefore],
-    ["Emotion during", trade.emotionDuring],
-    ["Emotion after", trade.emotionAfter],
+    ["Emotion Before", trade.emotionBefore],
+    ["Emotion During", trade.emotionDuring],
+    ["Emotion After", trade.emotionAfter],
     ["Conviction", trade.conviction != null ? `${trade.conviction}/5` : null],
-    ["Followed rules", yn(trade.followedRules)],
-    ["Accepted the risk", yn(trade.acceptedRisk)],
-    ["Execution timing", trade.executionTiming],
-    ["Stop after entry", trade.riskAcceptanceAfterEntry],
-    ["Management mistake", trade.managementMistake],
-    ["Edge or prediction", edgeLabel(trade.edgeType)],
+    ["Followed Rules", yn(trade.followedRules)],
+    ["Accepted The Risk", yn(trade.acceptedRisk)],
+    ["Execution Timing", trade.executionTiming],
+    ["Stop After Entry", trade.riskAcceptanceAfterEntry],
+    ["Management Mistake", trade.managementMistake],
+    ["Edge Or Prediction", edgeLabel(trade.edgeType)],
   ];
 
   return (
@@ -55,7 +55,7 @@ export default async function TradeDetailPage({
         <div>
           <p className="text-sm text-muted">{fmtDate(trade.tradeDate)}</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <h1 className="text-lg font-semibold">{trade.instrument}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">{trade.instrument}</h1>
             <DirectionBadge direction={trade.direction} />
             <LabelChip trade={trade} />
             <LocationBadge location={trade.location} />
@@ -83,13 +83,13 @@ export default async function TradeDetailPage({
 
       {trade.youtubeUrl ? (
         <Card>
-          <SectionTitle>Video recap</SectionTitle>
+          <SectionTitle>Video Recap</SectionTitle>
           <YouTubeEmbed url={trade.youtubeUrl} />
         </Card>
       ) : null}
 
       <Card>
-        <SectionTitle>Trade details</SectionTitle>
+        <SectionTitle>Trade Details</SectionTitle>
         <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
           {detail.map(([k, v]) =>
             v != null && v !== "" ? (
@@ -108,7 +108,7 @@ export default async function TradeDetailPage({
           {mind.map(([k, v]) => (
             <div key={k}>
               <dt className="text-xs text-muted">{k}</dt>
-              <dd className="mt-0.5 text-sm font-medium">{v ?? "—"}</dd>
+              <dd className="mt-0.5 text-sm font-medium">{v ?? "-"}</dd>
             </div>
           ))}
         </dl>
@@ -142,7 +142,7 @@ export default async function TradeDetailPage({
       {trade.noLabel ? (
         <div className="rounded-2xl border border-warn/30 bg-warn-soft px-4 py-3 text-sm text-warn">
           This trade was taken without a nameable setup.{" "}
-          <Badge tone="warn">Rule violation</Badge> Review it in your next session recap.
+          <Badge tone="warn">Rule Violation</Badge> Review it in your next session recap.
         </div>
       ) : null}
     </div>

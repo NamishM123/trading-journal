@@ -9,7 +9,7 @@ const LINKS = [
   { href: "/", label: "Dashboard" },
   { href: "/trades", label: "Trades" },
   { href: "/playbook", label: "Playbook" },
-  { href: "/journal", label: "Daily Journal" },
+  { href: "/journal", label: "Journal" },
   { href: "/stats", label: "Stats" },
 ];
 
@@ -19,49 +19,45 @@ export function Nav() {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-[rgba(7,11,18,0.78)] backdrop-blur-xl backdrop-saturate-150 after:absolute after:inset-x-0 after:-bottom-px after:h-px after:bg-[linear-gradient(90deg,transparent_5%,rgba(69,196,255,0.45),transparent_95%)]">
-      <div className="mx-auto flex max-w-6xl items-center gap-1.5 px-4 py-3">
-        <Link href="/" className="mr-3 flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-[0.65rem] font-extrabold text-accent-fg shadow-[var(--glow)]">
-            TJ
-          </span>
-          <span className="hidden font-mono text-xs font-bold uppercase tracking-[0.1em] sm:block">
-            Trading Journal
-          </span>
+    <header className="sticky top-0 z-40 border-b border-line bg-[rgba(7,11,18,0.78)] backdrop-blur-xl backdrop-saturate-150">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-3 sm:px-6">
+        <Link href="/" className="text-[1.05rem] font-semibold tracking-tight text-ink">
+          Trading Journal
         </Link>
 
-        <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+        <div className="ml-auto flex items-center gap-2 sm:order-last">
+          <Link
+            href="/trades/new"
+            className="whitespace-nowrap rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover"
+          >
+            New Recap
+          </Link>
+          <form action={logout}>
+            <button
+              type="submit"
+              className="rounded-full px-2.5 py-1.5 text-sm text-muted transition-colors hover:text-ink"
+            >
+              Log Out
+            </button>
+          </form>
+        </div>
+
+        <nav className="-mb-1 flex w-full items-center gap-5 overflow-x-auto pb-1 sm:mb-0 sm:w-auto sm:flex-1 sm:pb-0">
           {LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               className={cx(
-                "whitespace-nowrap rounded-lg border px-3 py-1.5 text-sm transition-colors",
+                "whitespace-nowrap py-1 text-sm transition-colors",
                 isActive(l.href)
-                  ? "border-[rgba(69,196,255,0.3)] bg-accent-soft font-semibold text-accent"
-                  : "border-transparent text-muted hover:bg-surface-2 hover:text-ink"
+                  ? "font-semibold text-ink"
+                  : "text-muted hover:text-ink"
               )}
             >
               {l.label}
             </Link>
           ))}
         </nav>
-
-        <Link
-          href="/trades/new"
-          className="whitespace-nowrap rounded-xl bg-accent px-3.5 py-1.5 text-sm font-bold text-accent-fg shadow-[var(--glow)] transition-colors hover:bg-accent-hover"
-        >
-          New Recap
-        </Link>
-        <form action={logout}>
-          <button
-            type="submit"
-            className="rounded-lg px-2 py-1.5 text-sm text-muted transition-colors hover:text-ink"
-            title="Log out"
-          >
-            Log out
-          </button>
-        </form>
       </div>
     </header>
   );

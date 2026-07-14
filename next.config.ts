@@ -6,7 +6,8 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       // Screenshot uploads go through server actions as multipart form data.
-      bodySizeLimit: "25mb",
+      // Large so a full batch of phone screenshots fits in one save.
+      bodySizeLimit: "100mb",
     },
   },
   images: {

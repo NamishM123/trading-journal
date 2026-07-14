@@ -25,11 +25,11 @@ export default async function PlaybookPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <div>
-        <h1 className="text-lg font-semibold">Playbook</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Playbook</h1>
         <p className="mt-1 text-sm text-muted">
           If you can&apos;t assign a trade one of these labels, you don&apos;t take it. Douglas&apos;s
-          consistency exercise: execute one setup {SAMPLE_SIZE_TARGET} times, graded only on
-          process.
+          consistency exercise is to execute one setup {SAMPLE_SIZE_TARGET} times, graded only
+          on process.
         </p>
       </div>
 
@@ -40,7 +40,7 @@ export default async function PlaybookPage() {
           <Card key={s.id}>
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
-                <h2 className="text-sm font-semibold">{s.name}</h2>
+                <h2 className="text-lg font-semibold tracking-tight">{s.name}</h2>
                 {s.description ? (
                   <p className="mt-1 text-sm text-muted">{s.description}</p>
                 ) : null}
@@ -56,18 +56,18 @@ export default async function PlaybookPage() {
             </div>
 
             <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Stat label="Win rate" value={fmtPct(st.winRate)} />
+              <Stat label="Win Rate" value={fmtPct(st.winRate)} />
               <Stat label="Total PnL" value={fmtMoney(st.pnl)} />
               <Stat label="Avg R" value={fmtR(st.avgR)} />
               <Stat
-                label="Expectancy / trade"
-                value={st.expectancy != null ? fmtMoney(st.expectancy) : "—"}
+                label="Expectancy Per Trade"
+                value={st.expectancy != null ? fmtMoney(st.expectancy) : "-"}
               />
             </dl>
 
             <div className="mt-4">
               <div className="mb-1 flex items-center justify-between text-xs text-muted">
-                <span>{SAMPLE_SIZE_TARGET}-trade sample</span>
+                <span>{SAMPLE_SIZE_TARGET} Trade Sample</span>
                 <span>
                   {sample}/{SAMPLE_SIZE_TARGET}
                   {st.avgGrade ? ` · avg execution ${st.avgGrade}` : ""}
@@ -82,7 +82,7 @@ export default async function PlaybookPage() {
             </div>
 
             <details className="mt-4">
-              <summary className="cursor-pointer text-sm text-accent">Edit setup</summary>
+              <summary className="cursor-pointer text-sm text-accent">Edit Setup</summary>
               <form action={updateSetup} className="mt-3 space-y-3">
                 <input type="hidden" name="id" value={s.id} />
                 <Field label="Name">
@@ -91,7 +91,7 @@ export default async function PlaybookPage() {
                 <Field label="Description">
                   <Textarea name="description" rows={2} defaultValue={s.description} />
                 </Field>
-                <Field label="Entry rules / criteria">
+                <Field label="Entry Rules And Criteria">
                   <Textarea
                     name="rules"
                     rows={3}
@@ -109,7 +109,7 @@ export default async function PlaybookPage() {
                 <input type="hidden" name="id" value={s.id} />
                 <input type="hidden" name="active" value="false" />
                 <button type="submit" className="text-sm text-muted hover:text-down">
-                  Archive setup
+                  Archive Setup
                 </button>
               </form>
             </details>
@@ -118,7 +118,7 @@ export default async function PlaybookPage() {
       })}
 
       <Card>
-        <h2 className="mb-3 text-sm font-semibold">Add a setup</h2>
+        <h2 className="mb-3 text-lg font-semibold tracking-tight">Add A Setup</h2>
         <form action={createSetup} className="space-y-3">
           <Field label="Name">
             <Input name="name" placeholder="e.g. Failed breakout reclaim" required />
@@ -126,16 +126,16 @@ export default async function PlaybookPage() {
           <Field label="Description">
             <Textarea name="description" rows={2} />
           </Field>
-          <Field label="Entry rules / criteria">
+          <Field label="Entry Rules And Criteria">
             <Textarea name="rules" rows={3} />
           </Field>
-          <Button type="submit">Add to playbook</Button>
+          <Button type="submit">Add To Playbook</Button>
         </form>
       </Card>
 
       {archived.length > 0 ? (
         <Card>
-          <h2 className="mb-3 text-sm font-semibold text-muted">Archived</h2>
+          <h2 className="mb-3 text-lg font-semibold tracking-tight text-muted">Archived</h2>
           <div className="space-y-2">
             {archived.map((s) => (
               <div key={s.id} className="flex items-center justify-between gap-3">

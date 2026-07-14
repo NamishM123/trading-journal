@@ -44,7 +44,7 @@ export async function saveTrade(formData: FormData): Promise<TradeActionResult> 
   if (!label)
     return {
       error:
-        "The Label Rule: name the setup you traded — or own it and pick “I couldn't name it.”",
+        "The Label Rule says to name the setup you traded, or own it and pick “I couldn't name it.”",
     };
 
   const noLabel = label === "nolabel";

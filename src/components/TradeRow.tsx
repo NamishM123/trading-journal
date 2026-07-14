@@ -11,8 +11,8 @@ export function TradeRow({ trade }: { trade: TradeWithRelations }) {
     >
       <span className="w-14 text-xs text-muted">{fmtDateShort(trade.tradeDate)}</span>
       <span className="w-12 text-sm font-medium">{trade.instrument}</span>
-      <span className="w-11 text-xs uppercase tracking-wide text-muted">
-        {trade.direction}
+      <span className="w-11 text-xs text-muted">
+        {trade.direction === "long" ? "Long" : "Short"}
       </span>
       <span className="min-w-0 flex-1">
         <LabelChip trade={trade} />

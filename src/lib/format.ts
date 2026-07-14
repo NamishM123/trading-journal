@@ -1,5 +1,5 @@
 export function fmtMoney(n: number | null | undefined): string {
-  if (n == null) return "—";
+  if (n == null) return "-";
   const sign = n < 0 ? "-" : "";
   return `${sign}$${Math.abs(n).toLocaleString("en-US", {
     minimumFractionDigits: 2,
@@ -8,12 +8,12 @@ export function fmtMoney(n: number | null | undefined): string {
 }
 
 export function fmtR(n: number | null | undefined): string {
-  if (n == null) return "—";
+  if (n == null) return "-";
   return `${n > 0 ? "+" : ""}${n.toFixed(2)}R`;
 }
 
 export function fmtPct(n: number | null | undefined): string {
-  if (n == null || Number.isNaN(n)) return "—";
+  if (n == null || Number.isNaN(n)) return "-";
   return `${Math.round(n * 100)}%`;
 }
 

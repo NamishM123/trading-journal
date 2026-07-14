@@ -20,7 +20,7 @@ export default async function NewTradePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <div>
-        <h1 className="text-lg font-semibold">New Recap</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">New Recap</h1>
         <p className="mt-1 text-sm text-muted">“{truth}”</p>
       </div>
       <TradeForm setups={activeSetups} />

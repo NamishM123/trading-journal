@@ -4,15 +4,15 @@ import type { TradeWithRelations } from "@/db/schema";
 
 export function LabelChip({ trade }: { trade: TradeWithRelations }) {
   if (trade.noLabel) {
-    return <Badge tone="warn">Unlabeled — rule violation</Badge>;
+    return <Badge tone="warn">Unlabeled, Rule Violation</Badge>;
   }
-  return <Badge tone="accent">{trade.setup?.name ?? "—"}</Badge>;
+  return <Badge tone="accent">{trade.setup?.name ?? "-"}</Badge>;
 }
 
 export function LocationBadge({ location }: { location: string }) {
   if (location === "taper") return <Badge tone="up">Taper</Badge>;
-  if (location === "monkey") return <Badge tone="warn">🐒 In balance</Badge>;
-  return <Badge>Location unsure</Badge>;
+  if (location === "monkey") return <Badge tone="warn">🐒 In Balance</Badge>;
+  return <Badge>Location Unsure</Badge>;
 }
 
 export function DirectionBadge({ direction }: { direction: string }) {

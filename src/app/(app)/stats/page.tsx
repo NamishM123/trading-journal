@@ -30,7 +30,7 @@ export default async function StatsPage() {
   if (all.length === 0) {
     return (
       <div className="mx-auto max-w-3xl">
-        <h1 className="mb-4 text-lg font-semibold">Stats</h1>
+        <h1 className="mb-4 text-2xl font-semibold tracking-tight">Stats</h1>
         <EmptyState title="No data yet." hint="Stats appear once you log recaps." />
       </div>
     );
@@ -58,7 +58,7 @@ export default async function StatsPage() {
   })).filter((r) => r.trades.length > 0);
 
   const byEdgeType = EDGE_TYPES.map((e) => ({
-    label: e.label.split(" — ")[0],
+    label: e.label.split(",")[0],
     value: e.value,
     trades: all.filter((t) => t.edgeType === e.value),
   })).filter((r) => r.trades.length > 0);
@@ -82,7 +82,7 @@ export default async function StatsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <h1 className="text-lg font-semibold">Stats</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Stats</h1>
 
       <Card>
         <SectionTitle hint="Your edge, setup by setup. This is the distribution Douglas says to trust.">
@@ -94,7 +94,7 @@ export default async function StatsPage() {
               <tr className="border-b border-line text-left text-xs text-muted">
                 <th className="py-2 pr-3 font-medium">Setup</th>
                 <th className="py-2 pr-3 text-right font-medium">Trades</th>
-                <th className="py-2 pr-3 text-right font-medium">Win rate</th>
+                <th className="py-2 pr-3 text-right font-medium">Win Rate</th>
                 <th className="py-2 pr-3 text-right font-medium">Avg R</th>
                 <th className="py-2 pr-3 text-right font-medium">Expectancy</th>
                 <th className="py-2 text-right font-medium">PnL</th>
@@ -108,7 +108,7 @@ export default async function StatsPage() {
                   <td className="py-2.5 pr-3 text-right tabular-nums">{fmtPct(stats.winRate)}</td>
                   <td className="py-2.5 pr-3 text-right tabular-nums">{fmtR(stats.avgR)}</td>
                   <td className="py-2.5 pr-3 text-right tabular-nums">
-                    {stats.expectancy != null ? fmtMoney(stats.expectancy) : "—"}
+                    {stats.expectancy != null ? fmtMoney(stats.expectancy) : "-"}
                   </td>
                   <td className="py-2.5 text-right">
                     <PnlText value={stats.pnl} />
@@ -144,7 +144,7 @@ export default async function StatsPage() {
         </SectionTitle>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-xl border border-line p-4">
-            <p className="text-sm font-medium">Taper — edge / excess</p>
+            <p className="text-sm font-medium">Taper, Edge Or Excess</p>
             <p className="mt-2 text-2xl font-semibold tabular-nums">
               <PnlText value={taperStats.pnl} />
             </p>
@@ -153,7 +153,7 @@ export default async function StatsPage() {
             </p>
           </div>
           <div className="rounded-xl border border-line p-4">
-            <p className="text-sm font-medium">🐒 Monkey — in balance</p>
+            <p className="text-sm font-medium">🐒 Monkey, In Balance</p>
             <p className="mt-2 text-2xl font-semibold tabular-nums">
               <PnlText value={monkeyStats.pnl} />
             </p>
@@ -164,7 +164,7 @@ export default async function StatsPage() {
         </div>
         {monkeyStats.count > 0 && monkeyStats.pnl < 0 ? (
           <p className="mt-3 rounded-xl bg-warn-soft px-3.5 py-2.5 text-sm text-warn">
-            Monkey tax so far: {fmtMoney(Math.abs(monkeyStats.pnl))}. That&apos;s what
+            Monkey tax so far is {fmtMoney(Math.abs(monkeyStats.pnl))}. That&apos;s what
             trading the middle has cost you.
           </p>
         ) : null}
@@ -217,7 +217,7 @@ export default async function StatsPage() {
 
       {byEdgeType.length > 0 ? (
         <Card>
-          <SectionTitle hint="Douglas: an edge is a higher probability, not a prediction. Where does your money actually come from?">
+          <SectionTitle hint="Douglas says an edge is a higher probability, not a prediction. Where does your money actually come from?">
             Edge or prediction?
           </SectionTitle>
           <div className="space-y-2">

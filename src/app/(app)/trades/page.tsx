@@ -61,7 +61,7 @@ export default async function TradesPage({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Trades</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Trades</h1>
         <span className="text-sm text-muted">
           {filtered.length} of {all.length}
         </span>
@@ -69,7 +69,7 @@ export default async function TradesPage({
 
       <div className="flex flex-wrap items-center gap-2">
         <Link href={link({ setup: undefined })} className={chip(!params.setup)}>
-          All setups
+          All Setups
         </Link>
         {setupList.map((s) => (
           <Link
