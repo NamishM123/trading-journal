@@ -54,7 +54,7 @@
   --color-warn-soft: var(--warn-soft);
   --color-chart-up: var(--chart-up);
   --color-chart-down: var(--chart-down);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-montserrat), "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
 }
 
@@ -72,14 +72,14 @@ body {
     var(--bg);
 }
 
-/* Starfield canvas sits behind everything; app content rides above it. */
-.starfield {
+/* Galaxy canvas sits behind everything; app content rides above it. */
+.galaxy-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
 }
-body > *:not(.starfield) {
+body > *:not(.galaxy-bg) {
   position: relative;
   z-index: 1;
 }

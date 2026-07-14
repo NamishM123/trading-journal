@@ -5,6 +5,7 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
+import { GlowCard } from "./GalaxyKit";
 
 export function cx(...parts: (string | false | null | undefined)[]) {
   return parts.filter(Boolean).join(" ");
@@ -18,15 +19,16 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div
+    <GlowCard
+      glowColor="blue"
+      radius={16}
       className={cx(
-        "rounded-2xl border border-line bg-surface p-5 backdrop-blur-xl",
-        "shadow-[0_14px_34px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.05)]",
+        "block p-5 shadow-[0_14px_34px_rgba(0,0,0,0.38)]",
         className
       )}
     >
       {children}
-    </div>
+    </GlowCard>
   );
 }
 
