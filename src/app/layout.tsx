@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat, Geist_Mono } from "next/font/google";
-import { CelestialSphere } from "@/components/GalaxyKit";
+import { GalaxyBackground } from "@/components/GalaxyKit";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -31,7 +31,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <div className="galaxy-bg" aria-hidden="true">
-          <CelestialSphere />
+          <GalaxyBackground />
         </div>
         {children}
       </body>

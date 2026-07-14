@@ -1,35 +1,35 @@
 "use client";
 
 /**
- * GalaxyKit.jsx — drop-in galaxy background + glow container boxes.
- *
- * Copy this single file into your new project (e.g. src/GalaxyKit.jsx).
+ * GalaxyKit.jsx — drop-in front-page galaxy (3-D starfield + shooting stars)
+ * and glow container boxes. Copy this single file into your new project.
  *
  * ────────────────────────────────────────────────────────────────────────
- *  DEPENDENCY
- *    npm install three
+ *  DEPENDENCIES
+ *    npm install three @react-three/fiber @react-three/drei
  * ────────────────────────────────────────────────────────────────────────
  *  FONT (Montserrat)
- *    Add this to your global CSS (index.css) or <head>:
+ *    Add to your global CSS (index.css) or <head>:
  *
  *      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
  *
  *    Font stack:   'Montserrat', 'Helvetica Neue', system-ui, sans-serif
  *    Weights used: 300 (light headings), 400 (body), 700 (labels/buttons)
- *    Sizes used in the original design:
+ *    Sizes from the original design:
  *      • Big heading:  font-size: clamp(2rem, 5vw, 4.4rem);  weight 300;  letter-spacing: 0.06em;
  *      • Label/button: font-size: 1rem;    weight 700;  letter-spacing: 0.18em;
  *      • Small caps:   font-size: 0.75rem;              letter-spacing: 0.18em;
  *
- *    Suggested page background color: #02050d
+ *    Page background color: #02050d
  * ────────────────────────────────────────────────────────────────────────
  *  USAGE
  *
- *    import { CelestialSphere, GlowCard } from './GalaxyKit';
+ *    import { GalaxyBackground, GlowCard } from './GalaxyKit';
  *
  *    // Full-screen galaxy behind everything:
- *    <div style={{ position: 'fixed', inset: 0, zIndex: -1 }}>
- *      <CelestialSphere />
+ *    <GalaxyBackground />
+ *    <div style={{ position: 'relative', zIndex: 1 }}>
+ *      ...your page content...
  *    </div>
  *
  *    // A glowing container box (blue glow that follows the cursor):
@@ -39,150 +39,164 @@
  * ────────────────────────────────────────────────────────────────────────
  */
 
-import { useRef, useEffect } from 'react';
-import * as THREE from 'three';
+import { useEffect, useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Stars } from '@react-three/drei';
 
 /* ========================================================================
- *  GALAXY BACKGROUND
+ *  STARFIELD — two rotating layers of drei <Stars>
  * ===================================================================== */
-export function CelestialSphere({
-  hue = 220.0,
-  speed = 0.3,
-  zoom = 1.5,
-  className = '',
-}) {
-  const mountRef = useRef(null);
+function StarField() {
+  const ref = useRef();
+  useFrame((_, delta) => {
+    if (ref.current) {
+      ref.current.rotation.y += delta * 0.008;
+      ref.current.rotation.x += delta * 0.003;
+    }
+  });
+  return (
+    <group ref={ref}>
+      <Stars radius={100} depth={50} count={2200}  factor={9}   saturation={0.25} fade speed={0.4} />
+      <Stars radius={140} depth={70} count={11000} factor={4.5} saturation={0.4}  fade speed={0.6} />
+    </group>
+  );
+}
+
+/* ========================================================================
+ *  SHOOTING STARS — canvas overlay that streaks stars horizontally
+ * ===================================================================== */
+function ShootingStars() {
+  const overlayRef = useRef(null);
+  const animRef = useRef(null);
 
   useEffect(() => {
-    if (!mountRef.current) return;
-    const currentMount = mountRef.current;
-    let scene, camera, renderer, material, mesh;
-    let animationFrameId;
+    const canvas = overlayRef.current;
+    const ctx = canvas.getContext('2d');
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let W = 0, H = 0;
+    const stars = [];
 
-    const vertexShader = `
-      varying vec2 vUv;
-      void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `;
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = canvas.clientWidth;
+      H = canvas.clientHeight;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
 
-    const fragmentShader = `
-      precision highp float;
-      varying vec2 vUv;
-      uniform vec2 u_resolution;
-      uniform float u_time;
-      uniform vec2 u_mouse;
-      uniform float u_hue;
-      uniform float u_zoom;
+    function spawn() {
+      const p = Math.random();
+      let tail, spd, life, lw;
+      // Speeds kept gentle so no star feels "super fast"
+      if      (p < 0.45) { tail = 40 + Math.random() * 50;  spd = 2.2 + Math.random() * 1.2; life = 55 + Math.random() * 30;  lw = 0.75; }
+      else if (p < 0.85) { tail = 70 + Math.random() * 80;  spd = 1.6 + Math.random() * 1.0; life = 90 + Math.random() * 70;  lw = 1.0;  }
+      else               { tail = 180 + Math.random() * 140; spd = 0.9 + Math.random() * 0.7; life = 240 + Math.random() * 160; lw = 1.2;  }
+      // Left or right only — within ±15° of horizontal
+      const spread = Math.PI / 12; // 15°
+      const base = Math.random() < 0.5 ? 0 : Math.PI; // rightward or leftward
+      const angle = base + (Math.random() * 2 - 1) * spread;
+      stars.push({
+        x: -50 + Math.random() * (W + 100),
+        y: -50 + Math.random() * (H * 0.75 + 100),
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd,
+        tail, life: 0, maxLife: life, lw,
+        hue: Math.random() < 0.7 ? 'rgba(255,245,225,' : 'rgba(220,230,255,',
+      });
+    }
 
-      vec3 hsl2rgb(vec3 c) {
-        vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0), 6.0)-3.0)-1.0, 0.0, 1.0);
-        return c.z * mix(vec3(1.0), rgb, c.y);
-      }
+    let lastSpawn = performance.now() - 1000;
+    let nextIn = 400 + Math.random() * 600;
 
-      float random(vec2 st) {
-        return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-      }
+    function frame(now) {
+      ctx.clearRect(0, 0, W, H);
 
-      float noise(vec2 st) {
-        vec2 i = floor(st);
-        vec2 f = fract(st);
-        float a = random(i);
-        float b = random(i + vec2(1.0, 0.0));
-        float c = random(i + vec2(0.0, 1.0));
-        float d = random(i + vec2(1.0, 1.0));
-        vec2 u = f * f * (3.0 - 2.0 * f);
-        return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.y * u.x;
-      }
-
-      float fbm(vec2 st) {
-        float value = 0.0;
-        float amplitude = 0.5;
-        for (int i = 0; i < 6; i++) {
-          value += amplitude * noise(st);
-          st *= 2.0;
-          amplitude *= 0.5;
-        }
-        return value;
+      if (now - lastSpawn > nextIn) {
+        spawn();
+        if (Math.random() < 0.3) setTimeout(spawn, 200 + Math.random() * 400);
+        lastSpawn = now;
+        nextIn = 600 + Math.random() * 1800;
       }
 
-      void main() {
-        vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.y, u_resolution.x);
-        uv *= u_zoom;
-
-        vec2 mouse_normalized = u_mouse / u_resolution;
-        uv += (mouse_normalized - 0.5) * 0.8;
-
-        float f = fbm(uv + vec2(u_time * 0.1, u_time * 0.05));
-        float t = fbm(uv + f + vec2(u_time * 0.05, u_time * 0.02));
-
-        float nebula = pow(t, 2.0);
-        vec3 color = hsl2rgb(vec3(u_hue / 360.0 + nebula * 0.2, 0.7, 0.5));
-        color *= nebula * 2.5;
-
-        gl_FragColor = vec4(color, 1.0);
+      for (let i = stars.length - 1; i >= 0; i--) {
+        const s = stars[i];
+        s.x += s.vx; s.y += s.vy; s.life++;
+        const lr = s.life / s.maxLife;
+        const fade = lr < 0.12 ? lr / 0.12 : lr > 0.7 ? Math.max(0, 1 - (lr - 0.7) / 0.3) : 1;
+        const sp = Math.hypot(s.vx, s.vy) || 1;
+        const ux = s.vx / sp, uy = s.vy / sp;
+        const tx = s.x - ux * s.tail, ty = s.y - uy * s.tail;
+        const g = ctx.createLinearGradient(tx, ty, s.x, s.y);
+        g.addColorStop(0, s.hue + '0)');
+        g.addColorStop(0.6, s.hue + (0.18 * fade) + ')');
+        g.addColorStop(1, s.hue + (0.95 * fade) + ')');
+        ctx.strokeStyle = g; ctx.lineWidth = s.lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(s.x, s.y); ctx.stroke();
+        const hg = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 3);
+        hg.addColorStop(0, s.hue + (0.7 * fade) + ')');
+        hg.addColorStop(1, s.hue + '0)');
+        ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(s.x, s.y, 3, 0, Math.PI * 2); ctx.fill();
+        if (s.life >= s.maxLife || s.x < -200 || s.x > W + 200 || Math.abs(s.y) > H + 200) stars.splice(i, 1);
       }
-    `;
 
-    scene = new THREE.Scene();
-    camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    currentMount.appendChild(renderer.domElement);
+      animRef.current = requestAnimationFrame(frame);
+    }
 
-    material = new THREE.ShaderMaterial({
-      vertexShader,
-      fragmentShader,
-      uniforms: {
-        u_time: { value: 0.0 },
-        u_resolution: { value: new THREE.Vector2() },
-        u_mouse: { value: new THREE.Vector2(0, 0) },
-        u_hue: { value: hue },
-        u_zoom: { value: zoom },
-      },
-    });
-
-    mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
-    scene.add(mesh);
-
-    const resize = () => {
-      const { clientWidth, clientHeight } = currentMount;
-      renderer.setSize(clientWidth, clientHeight);
-      material.uniforms.u_resolution.value.set(clientWidth, clientHeight);
-      camera.updateProjectionMatrix();
-    };
-
-    const onMouseMove = (event) => {
-      const rect = currentMount.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      material.uniforms.u_mouse.value.set(x, currentMount.clientHeight - y);
-    };
-
-    const animate = () => {
-      material.uniforms.u_time.value += 0.005 * speed;
-      renderer.render(scene, camera);
-      animationFrameId = requestAnimationFrame(animate);
-    };
-
-    window.addEventListener('resize', resize);
-    window.addEventListener('mousemove', onMouseMove);
     resize();
-    animate();
-
+    window.addEventListener('resize', resize);
+    animRef.current = requestAnimationFrame(frame);
     return () => {
+      cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', onMouseMove);
-      cancelAnimationFrame(animationFrameId);
-      if (currentMount && renderer.domElement) {
-        currentMount.removeChild(renderer.domElement);
-      }
-      renderer.dispose();
     };
-  }, [hue, speed, zoom]);
+  }, []);
 
-  return <div ref={mountRef} className={className} style={{ width: '100%', height: '100%' }} />;
+  return (
+    <canvas
+      ref={overlayRef}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        display: 'block',
+        pointerEvents: 'none',
+        zIndex: 1,
+      }}
+    />
+  );
+}
+
+/* ========================================================================
+ *  GALAXY BACKGROUND — full-screen starfield + shooting stars
+ * ===================================================================== */
+export function GalaxyBackground({ style = {}, fixed = true }) {
+  return (
+    <div
+      style={{
+        position: fixed ? 'fixed' : 'absolute',
+        inset: 0,
+        overflow: 'hidden',
+        background: '#02050d',
+        zIndex: 0,
+        ...style,
+      }}
+    >
+      {/* Three.js starfield — transparent canvas; the div supplies the dark bg */}
+      <Canvas
+        camera={{ position: [0, 0, 5], fov: 68 }}
+        gl={{ antialias: true, alpha: true }}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0 }}
+        onCreated={({ gl }) => gl.setClearColor(0, 0, 0, 0)}
+      >
+        <StarField />
+      </Canvas>
+
+      {/* Shooting-star overlay */}
+      <ShootingStars />
+    </div>
+  );
 }
 
 /* ========================================================================
@@ -328,4 +342,4 @@ export function GlowCard({
   );
 }
 
-export default CelestialSphere;
+export default GalaxyBackground;
