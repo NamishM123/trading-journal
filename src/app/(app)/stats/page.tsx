@@ -14,6 +14,7 @@ import {
   statsForTrades,
   violations,
   weekdayOf,
+  type SetupStats,
 } from "@/lib/stats";
 import { requireUserId } from "@/lib/session";
 import {
@@ -61,60 +62,55 @@ export default async function StatsPage() {
     .map((s) => ({ setup: s, stats: statsForTrades(all.filter((t) => t.setupId === s.id)) }))
     .filter((r) => r.stats.count > 0);
   const noLabelTrades = all.filter((t) => t.noLabel);
+  const noLabelStats = statsForTrades(noLabelTrades);
+
+  const group = <T,>(items: readonly T[], label: (i: T) => string, match: (i: T) => (t: (typeof all)[number]) => boolean) =>
+    items
+      .map((i) => {
+        const ts = all.filter(match(i));
+        return { label: label(i), stats: statsForTrades(ts) };
+      })
+      .filter((r) => r.stats.count > 0);
 
   const byGrade = GRADES.map((g) => ({
     grade: g,
-    trades: all.filter((t) => t.executionGrade === g),
-  })).filter((r) => r.trades.length > 0);
+    stats: statsForTrades(all.filter((t) => t.executionGrade === g)),
+  })).filter((r) => r.stats.count > 0);
+  const maxGradePnl = Math.max(1, ...byGrade.map((b) => Math.abs(b.stats.pnl)));
 
-  const byEmotion = EMOTIONS.map((e) => ({
-    emotion: e,
-    trades: all.filter((t) => t.emotionBefore === e),
-  })).filter((r) => r.trades.length > 0);
-
-  const byEdgeType = EDGE_TYPES.map((e) => ({
-    label: e.label.split(",")[0],
-    value: e.value,
-    trades: all.filter((t) => t.edgeType === e.value),
-  })).filter((r) => r.trades.length > 0);
-
-  const byRiskAcceptance = RISK_ACCEPTANCE_AFTER_ENTRY.map((r) => ({
-    answer: r,
-    trades: all.filter((t) => t.riskAcceptanceAfterEntry === r),
-  })).filter((r) => r.trades.length > 0);
-
-  const byTiming = EXECUTION_TIMINGS.map((tm) => ({
-    timing: tm,
-    trades: all.filter((t) => t.executionTiming === tm),
-  })).filter((r) => r.trades.length > 0);
-
-  const byMistake = MANAGEMENT_MISTAKES.filter((m) => m !== "None")
-    .map((m) => ({
-      mistake: m,
-      trades: all.filter((t) => t.managementMistake === m),
-    }))
-    .filter((r) => r.trades.length > 0);
+  const byEmotion = group(EMOTIONS, (e) => e, (e) => (t) => t.emotionBefore === e);
+  const byEdgeType = group(
+    EDGE_TYPES,
+    (e) => e.label.split(",")[0],
+    (e) => (t) => t.edgeType === e.value
+  );
+  const byRiskAcceptance = group(
+    RISK_ACCEPTANCE_AFTER_ENTRY,
+    (r) => r,
+    (r) => (t) => t.riskAcceptanceAfterEntry === r
+  );
+  const byTiming = group(EXECUTION_TIMINGS, (tm) => tm, (tm) => (t) => t.executionTiming === tm);
+  const byMistake = group(
+    MANAGEMENT_MISTAKES.filter((m) => m !== "None"),
+    (m) => m,
+    (m) => (t) => t.managementMistake === m
+  );
+  const byWeekday = group(
+    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const,
+    (d) => d,
+    (d) => (t) => weekdayOf(t.tradeDate) === d
+  );
+  const bySession = group(SESSION_BUCKETS, (b) => b, (b) => (t) => sessionBucket(t.entryTime) === b);
 
   const pf = profitFactor(all);
   const dd = maxDrawdown(all);
   const { avgWin, avgLoss } = avgWinLoss(all);
   const overall = statsForTrades(all);
 
-  const byWeekday = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    .map((d) => ({ day: d, trades: all.filter((t) => weekdayOf(t.tradeDate) === d) }))
-    .filter((r) => r.trades.length > 0);
-
-  const bySession = SESSION_BUCKETS.map((b) => ({
-    bucket: b as string,
-    trades: all.filter((t) => sessionBucket(t.entryTime) === b),
-  })).filter((r) => r.trades.length > 0);
-
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <Card>
-        <SectionTitle>
-          Performance
-        </SectionTitle>
+        <SectionTitle>Performance</SectionTitle>
         <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
           <PerfStat
             label="Profit Factor"
@@ -138,118 +134,51 @@ export default async function StatsPage() {
         </div>
       </Card>
 
-      {byWeekday.length > 0 ? (
-        <Card>
-          <SectionTitle>
-            Day Of Week
-          </SectionTitle>
-          <div className="space-y-2">
-            {byWeekday.map(({ day, trades: dts }) => (
-              <div key={day} className="flex items-center gap-3 text-base">
-                <span className="w-28">{day}</span>
-                <span className="w-16 text-muted">{dts.length} trade{dts.length === 1 ? "" : "s"}</span>
-                <span className="w-14 text-right tabular-nums text-muted">
-                  {fmtPct(statsForTrades(dts).winRate)}
-                </span>
-                <PnlText value={statsForTrades(dts).pnl} className="flex-1 text-right" />
-              </div>
-            ))}
-          </div>
-        </Card>
-      ) : null}
-
-      {bySession.length > 0 ? (
-        <Card>
-          <SectionTitle>
-            Time Of Day
-          </SectionTitle>
-          <div className="space-y-2">
-            {bySession.map(({ bucket, trades: bts }) => (
-              <div key={bucket} className="flex items-center gap-3 text-base">
-                <span className="w-28">{bucket}</span>
-                <span className="w-16 text-muted">{bts.length} trade{bts.length === 1 ? "" : "s"}</span>
-                <span className="w-14 text-right tabular-nums text-muted">
-                  {fmtPct(statsForTrades(bts).winRate)}
-                </span>
-                <PnlText value={statsForTrades(bts).pnl} className="flex-1 text-right" />
-              </div>
-            ))}
-          </div>
-        </Card>
-      ) : null}
+      <BreakdownCard title="Day Of Week" rows={byWeekday} />
+      <BreakdownCard title="Time Of Day" rows={bySession} />
 
       <Card>
-        <SectionTitle>
-          Edge By Setup
-        </SectionTitle>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[560px] text-base">
-            <thead>
-              <tr className="border-b border-line text-left text-sm text-muted">
-                <th className="py-2 pr-3 font-medium">Setup</th>
-                <th className="py-2 pr-3 text-right font-medium">Trades</th>
-                <th className="py-2 pr-3 text-right font-medium">Win Rate</th>
-                <th className="py-2 pr-3 text-right font-medium">Avg R</th>
-                <th className="py-2 pr-3 text-right font-medium">Expectancy</th>
-                <th className="py-2 text-right font-medium">PnL</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bySetup.map(({ setup, stats }) => (
-                <tr key={setup.id} className="border-b border-line/60">
-                  <td className="py-2.5 pr-3 font-medium">{setup.name}</td>
-                  <td className="py-2.5 pr-3 text-right tabular-nums">{stats.count}</td>
-                  <td className="py-2.5 pr-3 text-right tabular-nums">{fmtPct(stats.winRate)}</td>
-                  <td className="py-2.5 pr-3 text-right tabular-nums">{fmtR(stats.avgR)}</td>
-                  <td className="py-2.5 pr-3 text-right tabular-nums">
-                    {stats.expectancy != null ? fmtMoney(stats.expectancy) : "-"}
-                  </td>
-                  <td className="py-2.5 text-right">
-                    <PnlText value={stats.pnl} />
-                  </td>
-                </tr>
-              ))}
-              {noLabelTrades.length > 0 ? (
-                <tr>
-                  <td className="py-2.5 pr-3 text-warn">Unlabeled (violations)</td>
-                  <td className="py-2.5 pr-3 text-right tabular-nums">{noLabelTrades.length}</td>
-                  <td className="py-2.5 pr-3 text-right tabular-nums">
-                    {fmtPct(statsForTrades(noLabelTrades).winRate)}
-                  </td>
-                  <td className="py-2.5 pr-3 text-right tabular-nums">
-                    {fmtR(statsForTrades(noLabelTrades).avgR)}
-                  </td>
-                  <td className="py-2.5 pr-3 text-right tabular-nums">
-                    {fmtMoney(statsForTrades(noLabelTrades).expectancy ?? 0)}
-                  </td>
-                  <td className="py-2.5 text-right">
-                    <PnlText value={statsForTrades(noLabelTrades).pnl} />
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
+        <SectionTitle>Edge By Setup</SectionTitle>
+        <div className="divide-y divide-line/60">
+          {bySetup.map(({ setup, stats }) => (
+            <StatRow
+              key={setup.id}
+              label={setup.name}
+              stats={stats}
+              extra={`${fmtR(stats.avgR)} avg · ${
+                stats.expectancy != null ? fmtMoney(stats.expectancy) : "-"
+              } per trade`}
+            />
+          ))}
+          {noLabelTrades.length > 0 ? (
+            <StatRow
+              label="Unlabeled (violations)"
+              labelClassName="text-warn"
+              stats={noLabelStats}
+              extra={`${fmtR(noLabelStats.avgR)} avg · ${
+                noLabelStats.expectancy != null ? fmtMoney(noLabelStats.expectancy) : "-"
+              } per trade`}
+            />
+          ) : null}
         </div>
       </Card>
 
       <Card>
-        <SectionTitle>
-          Taper Vs Monkey
-        </SectionTitle>
+        <SectionTitle>Taper Vs Monkey</SectionTitle>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-xl border border-line p-4">
-            <p className="text-sm font-medium">Taper, Edge Or Excess</p>
+            <p className="text-base font-medium">Taper, Edge Or Excess</p>
             <p className="mt-2 text-2xl font-semibold tabular-nums">
-              <PnlText value={taperStats.pnl} />
+              <PnlText value={taperStats.pnl} className="text-2xl" />
             </p>
             <p className="mt-1 text-sm text-muted">
               {taperStats.count} trades · {fmtPct(taperStats.winRate)} win rate
             </p>
           </div>
           <div className="rounded-xl border border-line p-4">
-            <p className="text-sm font-medium">🐒 Monkey, In Balance</p>
+            <p className="text-base font-medium">🐒 Monkey, In Balance</p>
             <p className="mt-2 text-2xl font-semibold tabular-nums">
-              <PnlText value={monkeyStats.pnl} />
+              <PnlText value={monkeyStats.pnl} className="text-2xl" />
             </p>
             <p className="mt-1 text-sm text-muted">
               {monkeyStats.count} trades · {fmtPct(monkeyStats.winRate)} win rate
@@ -257,7 +186,7 @@ export default async function StatsPage() {
           </div>
         </div>
         {monkeyStats.count > 0 && monkeyStats.pnl < 0 ? (
-          <p className="mt-3 rounded-xl bg-warn-soft px-3.5 py-2.5 text-sm text-warn">
+          <p className="mt-4 rounded-xl bg-warn-soft px-3.5 py-2.5 text-base text-warn">
             Monkey tax so far is {fmtMoney(Math.abs(monkeyStats.pnl))}. That&apos;s what
             trading the middle has cost you.
           </p>
@@ -265,155 +194,112 @@ export default async function StatsPage() {
       </Card>
 
       <Card>
-        <SectionTitle>
-          Process Vs Outcome
-        </SectionTitle>
-        <div className="space-y-2">
-          {byGrade.map(({ grade, trades: gts }) => (
-            <div key={grade} className="flex items-center gap-3 text-base">
-              <span className="w-8 font-semibold">{grade}</span>
-              <span className="w-16 text-muted">{gts.length} trade{gts.length === 1 ? "" : "s"}</span>
-              <div className="h-4 flex-1 overflow-hidden rounded-full bg-surface-2">
+        <SectionTitle>Process Vs Outcome</SectionTitle>
+        <div className="divide-y divide-line/60">
+          {byGrade.map(({ grade, stats }) => (
+            <div key={grade} className="py-3 first:pt-0 last:pb-0">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-base font-semibold">{grade} Execution</span>
+                <PnlText value={stats.pnl} className="shrink-0" />
+              </div>
+              <p className="mt-0.5 text-sm text-muted">
+                {stats.count} trade{stats.count === 1 ? "" : "s"} · {fmtPct(stats.winRate)} win rate
+              </p>
+              <div className="mt-2 h-4 overflow-hidden rounded-full bg-surface-2">
                 <div
                   className="h-full rounded-full"
                   style={{
-                    width: `${Math.min(100, (Math.abs(statsForTrades(gts).pnl) / Math.max(1, ...byGrade.map((b) => Math.abs(statsForTrades(b.trades).pnl)))) * 100)}%`,
-                    backgroundColor:
-                      statsForTrades(gts).pnl >= 0 ? "var(--chart-up)" : "var(--chart-down)",
+                    width: `${Math.min(100, (Math.abs(stats.pnl) / maxGradePnl) * 100)}%`,
+                    backgroundColor: stats.pnl >= 0 ? "var(--chart-up)" : "var(--chart-down)",
                   }}
                 />
               </div>
-              <PnlText value={statsForTrades(gts).pnl} className="w-24 text-right" />
             </div>
           ))}
         </div>
       </Card>
 
-      {byEmotion.length > 0 ? (
-        <Card>
-          <SectionTitle>
-            Emotion At Entry
-          </SectionTitle>
-          <div className="space-y-2">
-            {byEmotion.map(({ emotion, trades: ets }) => (
-              <div key={emotion} className="flex items-center gap-3 text-base">
-                <span className="w-28">{emotion}</span>
-                <span className="w-16 text-muted">{ets.length} trade{ets.length === 1 ? "" : "s"}</span>
-                <span className="w-14 text-right tabular-nums text-muted">
-                  {fmtPct(statsForTrades(ets).winRate)}
-                </span>
-                <PnlText value={statsForTrades(ets).pnl} className="flex-1 text-right" />
-              </div>
-            ))}
-          </div>
-        </Card>
-      ) : null}
-
-      {byEdgeType.length > 0 ? (
-        <Card>
-          <SectionTitle>
-            Edge Or Prediction?
-          </SectionTitle>
-          <div className="space-y-2">
-            {byEdgeType.map(({ label, value, trades: ets }) => (
-              <div key={value} className="flex items-center gap-3 text-base">
-                <span className="w-28 font-medium">{label}</span>
-                <span className="w-16 text-muted">{ets.length} trade{ets.length === 1 ? "" : "s"}</span>
-                <span className="w-14 text-right tabular-nums text-muted">
-                  {fmtPct(statsForTrades(ets).winRate)}
-                </span>
-                <PnlText value={statsForTrades(ets).pnl} className="flex-1 text-right" />
-              </div>
-            ))}
-          </div>
-        </Card>
-      ) : null}
-
-      {byRiskAcceptance.length > 0 ? (
-        <Card>
-          <SectionTitle>
-            Risk Acceptance Vs PnL
-          </SectionTitle>
-          <div className="space-y-2">
-            {byRiskAcceptance.map(({ answer, trades: rts }) => (
-              <div key={answer} className="flex items-center gap-3 text-base">
-                <span className="w-40 truncate" title={answer}>{answer}</span>
-                <span className="w-16 text-muted">{rts.length} trade{rts.length === 1 ? "" : "s"}</span>
-                <span className="w-14 text-right tabular-nums text-muted">
-                  {fmtPct(statsForTrades(rts).winRate)}
-                </span>
-                <PnlText value={statsForTrades(rts).pnl} className="flex-1 text-right" />
-              </div>
-            ))}
-          </div>
-        </Card>
-      ) : null}
-
-      {byTiming.length > 0 ? (
-        <Card>
-          <SectionTitle>
-            Execution Timing Vs PnL
-          </SectionTitle>
-          <div className="space-y-2">
-            {byTiming.map(({ timing, trades: tts }) => (
-              <div key={timing} className="flex items-center gap-3 text-base">
-                <span className="w-40 truncate" title={timing}>{timing}</span>
-                <span className="w-16 text-muted">{tts.length} trade{tts.length === 1 ? "" : "s"}</span>
-                <span className="w-14 text-right tabular-nums text-muted">
-                  {fmtPct(statsForTrades(tts).winRate)}
-                </span>
-                <PnlText value={statsForTrades(tts).pnl} className="flex-1 text-right" />
-              </div>
-            ))}
-          </div>
-        </Card>
-      ) : null}
-
-      {byMistake.length > 0 ? (
-        <Card>
-          <SectionTitle>
-            Management Mistakes Vs PnL
-          </SectionTitle>
-          <div className="space-y-2">
-            {byMistake.map(({ mistake, trades: mts }) => (
-              <div key={mistake} className="flex items-center gap-3 text-base">
-                <span className="w-40 truncate" title={mistake}>{mistake}</span>
-                <span className="w-16 text-muted">{mts.length} trade{mts.length === 1 ? "" : "s"}</span>
-                <span className="w-14 text-right tabular-nums text-muted">
-                  {fmtPct(statsForTrades(mts).winRate)}
-                </span>
-                <PnlText value={statsForTrades(mts).pnl} className="flex-1 text-right" />
-              </div>
-            ))}
-          </div>
-        </Card>
-      ) : null}
+      <BreakdownCard title="Emotion At Entry" rows={byEmotion} />
+      <BreakdownCard title="Edge Or Prediction?" rows={byEdgeType} />
+      <BreakdownCard title="Risk Acceptance Vs PnL" rows={byRiskAcceptance} />
+      <BreakdownCard title="Execution Timing Vs PnL" rows={byTiming} />
+      <BreakdownCard title="Management Mistakes Vs PnL" rows={byMistake} />
 
       {viols.length > 0 ? (
         <Card>
-          <SectionTitle>
-            Violation Log
-          </SectionTitle>
-          <div className="space-y-2">
+          <SectionTitle>Violation Log</SectionTitle>
+          <div className="space-y-2.5">
             {viols.map((t) => (
               <Link
                 key={t.id}
                 href={`/trades/${t.id}`}
-                className="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-line px-3.5 py-2.5 text-base hover:bg-surface-2"
+                className="block rounded-xl border border-line px-4 py-3 transition-colors hover:bg-surface-2"
               >
-                <span className="w-16 text-sm text-muted">{fmtDateShort(t.tradeDate)}</span>
-                <span className="w-12 font-medium">{t.instrument}</span>
-                <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="flex min-w-0 items-baseline gap-2.5">
+                    <span className="shrink-0 text-sm text-muted">{fmtDateShort(t.tradeDate)}</span>
+                    <span className="text-base font-bold">{t.instrument}</span>
+                  </span>
+                  <PnlText value={t.pnl} className="shrink-0" />
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {t.noLabel ? <Badge tone="warn">No Label</Badge> : null}
                   {t.followedRules === false ? <Badge tone="down">Broke Rules</Badge> : null}
-                </span>
-                <PnlText value={t.pnl} className="ml-auto" />
+                </div>
               </Link>
             ))}
           </div>
         </Card>
       ) : null}
     </div>
+  );
+}
+
+/** One row pattern for every breakdown. Label left, PnL right, meta below. Nothing wraps. */
+function StatRow({
+  label,
+  stats,
+  extra,
+  labelClassName,
+}: {
+  label: string;
+  stats: SetupStats;
+  extra?: string;
+  labelClassName?: string;
+}) {
+  return (
+    <div className="py-3 first:pt-0 last:pb-0">
+      <div className="flex items-baseline justify-between gap-3">
+        <span className={`min-w-0 flex-1 truncate text-base font-medium ${labelClassName ?? ""}`}>
+          {label}
+        </span>
+        <PnlText value={stats.pnl} className="shrink-0" />
+      </div>
+      <p className="mt-0.5 text-sm text-muted">
+        {stats.count} trade{stats.count === 1 ? "" : "s"} · {fmtPct(stats.winRate)} win rate
+        {extra ? ` · ${extra}` : ""}
+      </p>
+    </div>
+  );
+}
+
+function BreakdownCard({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: { label: string; stats: SetupStats }[];
+}) {
+  if (rows.length === 0) return null;
+  return (
+    <Card>
+      <SectionTitle>{title}</SectionTitle>
+      <div className="divide-y divide-line/60">
+        {rows.map((r) => (
+          <StatRow key={r.label} label={r.label} stats={r.stats} />
+        ))}
+      </div>
+    </Card>
   );
 }
 
