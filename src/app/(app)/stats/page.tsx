@@ -1,18 +1,14 @@
-import Link from "next/link";
 import { asc, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { setups, trades } from "@/db/schema";
-import { Badge, Card, EmptyState, SectionTitle } from "@/components/ui";
+import { Card, EmptyState, SectionTitle } from "@/components/ui";
 import { PnlText } from "@/components/badges";
-import { fmtDateShort, fmtMoney, fmtPct, fmtR } from "@/lib/format";
+import { fmtMoney, fmtPct, fmtR } from "@/lib/format";
 import {
   avgWinLoss,
   maxDrawdown,
   profitFactor,
-  sessionBucket,
-  SESSION_BUCKETS,
   statsForTrades,
-  violations,
   weekdayOf,
   type SetupStats,
 } from "@/lib/stats";
@@ -56,13 +52,17 @@ export default async function StatsPage() {
   const monkey = all.filter((t) => t.location === "monkey");
   const taperStats = statsForTrades(taper);
   const monkeyStats = statsForTrades(monkey);
-  const viols = violations(all);
 
   const bySetup = allSetups
     .map((s) => ({ setup: s, stats: statsForTrades(all.filter((t) => t.setupId === s.id)) }))
     .filter((r) => r.stats.count > 0);
   const noLabelTrades = all.filter((t) => t.noLabel);
   const noLabelStats = statsForTrades(noLabelTrades);
+  const maxSetupPnl = Math.max(
+    1,
+    ...bySetup.map((r) => Math.abs(r.stats.pnl)),
+    Math.abs(noLabelStats.pnl)
+  );
 
   const group = <T,>(items: readonly T[], label: (i: T) => string, match: (i: T) => (t: (typeof all)[number]) => boolean) =>
     items
@@ -100,23 +100,54 @@ export default async function StatsPage() {
     (d) => d,
     (d) => (t) => weekdayOf(t.tradeDate) === d
   );
-  const bySession = group(SESSION_BUCKETS, (b) => b, (b) => (t) => sessionBucket(t.entryTime) === b);
+
+  // Half hour entry-time buckets, built from the data so only traded windows show.
+  const fmtClock = (mins: number) => `${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, "0")}`;
+  const bucketMap = new Map<number, typeof all>();
+  for (const t of all) {
+    if (!t.entryTime) continue;
+    const [h, m] = t.entryTime.split(":").map(Number);
+    if (Number.isNaN(h)) continue;
+    const start = h * 60 + (m >= 30 ? 30 : 0);
+    bucketMap.set(start, [...(bucketMap.get(start) ?? []), t]);
+  }
+  const bySession = [...bucketMap.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([start, ts]) => ({
+      label: `${fmtClock(start)} to ${fmtClock(start + 30)}`,
+      stats: statsForTrades(ts),
+    }));
 
   const pf = profitFactor(all);
   const dd = maxDrawdown(all);
   const { avgWin, avgLoss } = avgWinLoss(all);
   const overall = statsForTrades(all);
+  const largestWin = Math.max(0, ...all.map((t) => t.pnl));
+  const largestLoss = Math.min(0, ...all.map((t) => t.pnl));
+  const dailyTotals = new Map<string, number>();
+  for (const t of all) dailyTotals.set(t.tradeDate, (dailyTotals.get(t.tradeDate) ?? 0) + t.pnl);
+  const dayVals = [...dailyTotals.values()];
+  const bestDay = Math.max(0, ...dayVals);
+  const worstDay = Math.min(0, ...dayVals);
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <Card>
         <SectionTitle>Performance</SectionTitle>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
+          <PerfStat label="Total Trades" value={`${overall.count}`} />
+          <PerfStat
+            label="Record"
+            value={`${overall.wins}W ${overall.count - overall.wins}L`}
+          />
           <PerfStat
             label="Profit Factor"
             value={pf == null ? "-" : pf === Infinity ? "∞" : pf.toFixed(2)}
           />
-          <PerfStat label="Max Drawdown" value={fmtMoney(-dd)} tone={dd > 0 ? "down" : undefined} />
+          <PerfStat
+            label="Expectancy Per Trade"
+            value={overall.expectancy != null ? fmtMoney(overall.expectancy) : "-"}
+          />
           <PerfStat
             label="Avg Win"
             value={avgWin != null ? fmtMoney(avgWin) : "-"}
@@ -128,8 +159,26 @@ export default async function StatsPage() {
             tone={avgLoss != null ? "down" : undefined}
           />
           <PerfStat
-            label="Expectancy Per Trade"
-            value={overall.expectancy != null ? fmtMoney(overall.expectancy) : "-"}
+            label="Largest Win"
+            value={fmtMoney(largestWin)}
+            tone={largestWin > 0 ? "up" : undefined}
+          />
+          <PerfStat
+            label="Largest Loss"
+            value={fmtMoney(largestLoss)}
+            tone={largestLoss < 0 ? "down" : undefined}
+          />
+          <PerfStat label="Best Day" value={fmtMoney(bestDay)} tone={bestDay > 0 ? "up" : undefined} />
+          <PerfStat
+            label="Worst Day"
+            value={fmtMoney(worstDay)}
+            tone={worstDay < 0 ? "down" : undefined}
+          />
+          <PerfStat label="Max Drawdown" value={fmtMoney(-dd)} tone={dd > 0 ? "down" : undefined} />
+          <PerfStat
+            label="Monkey Tax"
+            value={fmtMoney(Math.abs(Math.min(0, monkeyStats.pnl)))}
+            tone={monkeyStats.pnl < 0 ? "down" : undefined}
           />
         </div>
       </Card>
@@ -141,23 +190,14 @@ export default async function StatsPage() {
         <SectionTitle>Edge By Setup</SectionTitle>
         <div className="divide-y divide-line/60">
           {bySetup.map(({ setup, stats }) => (
-            <StatRow
-              key={setup.id}
-              label={setup.name}
-              stats={stats}
-              extra={`${fmtR(stats.avgR)} avg · ${
-                stats.expectancy != null ? fmtMoney(stats.expectancy) : "-"
-              } per trade`}
-            />
+            <StatRow key={setup.id} label={setup.name} stats={stats} max={maxSetupPnl} />
           ))}
           {noLabelTrades.length > 0 ? (
             <StatRow
               label="Unlabeled (violations)"
               labelClassName="text-warn"
               stats={noLabelStats}
-              extra={`${fmtR(noLabelStats.avgR)} avg · ${
-                noLabelStats.expectancy != null ? fmtMoney(noLabelStats.expectancy) : "-"
-              } per trade`}
+              max={maxSetupPnl}
             />
           ) : null}
         </div>
@@ -176,7 +216,7 @@ export default async function StatsPage() {
             </p>
           </div>
           <div className="rounded-xl border border-line p-4">
-            <p className="text-base font-medium">🐒 Monkey, In Balance</p>
+            <p className="text-base font-medium">Monkey, In Balance</p>
             <p className="mt-2 text-2xl font-semibold tabular-nums">
               <PnlText value={monkeyStats.pnl} className="text-2xl" />
             </p>
@@ -203,7 +243,8 @@ export default async function StatsPage() {
                 <PnlText value={stats.pnl} className="shrink-0" />
               </div>
               <p className="mt-0.5 text-sm text-muted">
-                {stats.count} trade{stats.count === 1 ? "" : "s"} · {fmtPct(stats.winRate)} win rate
+                {stats.count} trade{stats.count === 1 ? "" : "s"} · {stats.wins}W{" "}
+                {stats.count - stats.wins}L · {fmtPct(stats.winRate)} · {fmtR(stats.avgR)} avg
               </p>
               <div className="mt-2 h-4 overflow-hidden rounded-full bg-surface-2">
                 <div
@@ -225,50 +266,25 @@ export default async function StatsPage() {
       <BreakdownCard title="Execution Timing Vs PnL" rows={byTiming} />
       <BreakdownCard title="Management Mistakes Vs PnL" rows={byMistake} />
 
-      {viols.length > 0 ? (
-        <Card>
-          <SectionTitle>Violation Log</SectionTitle>
-          <div className="space-y-2.5">
-            {viols.map((t) => (
-              <Link
-                key={t.id}
-                href={`/trades/${t.id}`}
-                className="block rounded-xl border border-line px-4 py-3 transition-colors hover:bg-surface-2"
-              >
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="flex min-w-0 items-baseline gap-2.5">
-                    <span className="shrink-0 text-sm text-muted">{fmtDateShort(t.tradeDate)}</span>
-                    <span className="text-base font-bold">{t.instrument}</span>
-                  </span>
-                  <PnlText value={t.pnl} className="shrink-0" />
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                  {t.noLabel ? <Badge tone="warn">No Label</Badge> : null}
-                  {t.followedRules === false ? <Badge tone="down">Broke Rules</Badge> : null}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </Card>
-      ) : null}
     </div>
   );
 }
 
-/** One row pattern for every breakdown. Label left, PnL right, meta below. Nothing wraps. */
+/** One row pattern for every breakdown. Label left, PnL right, full detail and a comparison bar below. */
 function StatRow({
   label,
   stats,
-  extra,
+  max,
   labelClassName,
 }: {
   label: string;
   stats: SetupStats;
-  extra?: string;
+  max: number;
   labelClassName?: string;
 }) {
+  const losses = stats.count - stats.wins;
   return (
-    <div className="py-3 first:pt-0 last:pb-0">
+    <div className="py-3.5 first:pt-0 last:pb-0">
       <div className="flex items-baseline justify-between gap-3">
         <span className={`min-w-0 flex-1 truncate text-base font-medium ${labelClassName ?? ""}`}>
           {label}
@@ -276,9 +292,19 @@ function StatRow({
         <PnlText value={stats.pnl} className="shrink-0" />
       </div>
       <p className="mt-0.5 text-sm text-muted">
-        {stats.count} trade{stats.count === 1 ? "" : "s"} · {fmtPct(stats.winRate)} win rate
-        {extra ? ` · ${extra}` : ""}
+        {stats.count} trade{stats.count === 1 ? "" : "s"} · {stats.wins}W {losses}L ·{" "}
+        {fmtPct(stats.winRate)} · {fmtR(stats.avgR)} avg
+        {stats.expectancy != null ? ` · ${fmtMoney(stats.expectancy)} per trade` : ""}
       </p>
+      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
+        <div
+          className="h-full rounded-full"
+          style={{
+            width: `${Math.min(100, (Math.abs(stats.pnl) / Math.max(1, max)) * 100)}%`,
+            backgroundColor: stats.pnl >= 0 ? "var(--chart-up)" : "var(--chart-down)",
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -291,12 +317,13 @@ function BreakdownCard({
   rows: { label: string; stats: SetupStats }[];
 }) {
   if (rows.length === 0) return null;
+  const max = Math.max(1, ...rows.map((r) => Math.abs(r.stats.pnl)));
   return (
     <Card>
       <SectionTitle>{title}</SectionTitle>
       <div className="divide-y divide-line/60">
         {rows.map((r) => (
-          <StatRow key={r.label} label={r.label} stats={r.stats} />
+          <StatRow key={r.label} label={r.label} stats={r.stats} max={max} />
         ))}
       </div>
     </Card>

@@ -273,7 +273,7 @@ export function TradeForm({
         </Field>
         {location === "monkey" ? (
           <p className="mt-3 rounded-xl bg-warn-soft px-3.5 py-2.5 text-sm text-warn">
-            🐒 Trading inside balance is coin-flip territory. It goes on your monkey tax.
+            Trading inside balance is coin-flip territory. It goes on your monkey tax.
           </p>
         ) : null}
       </Card>

@@ -11,7 +11,7 @@ export function LabelChip({ trade }: { trade: TradeWithRelations }) {
 
 export function LocationBadge({ location }: { location: string }) {
   if (location === "taper") return <Badge tone="up">Taper</Badge>;
-  if (location === "monkey") return <Badge tone="warn">🐒 In Balance</Badge>;
+  if (location === "monkey") return <Badge tone="warn">In Balance</Badge>;
   return <Badge>Location Unsure</Badge>;
 }
 

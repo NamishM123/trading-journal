@@ -32,3 +32,5 @@ These rules apply to every piece of user visible text in the app. UI copy, title
 17. Day grades read "A Day", "B Day", "C Day", never "Day A".
 18. On phones the header has no visible Log Out. Double tapping the brand reveals it. Desktop shows the Log Out button normally.
 19. Save actions never show a blank error page. Database failures return `{ error }` with the real message and render inside the form.
+20. No emojis anywhere in the UI.
+21. Stats breakdown rows always show the full detail line, trades, wins and losses record, win rate, avg R, and dollars per trade, plus a thin comparison bar.
